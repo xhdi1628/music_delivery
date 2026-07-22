@@ -52,8 +52,28 @@
       openedBoxes: s.openedBoxes,
       selectedDay: 1,
       tapeProgress: 0,
+      arrivedTimer: null,
     };
   })();
+
+  // Per-day random size factors, fixed for this session so boxes don't
+  // resize on every re-render. Index 0 = day 1.
+  const BOX_SCALES = (function () {
+    const arr = [];
+    for (let i = 0; i < 7; i++) {
+      arr.push({
+        w: 0.72 + Math.random() * 0.5, // 0.72 - 1.22
+        h: 0.72 + Math.random() * 0.5,
+      });
+    }
+    return arr;
+  })();
+
+  // Base dimensions (px) for the tower box sizes, before random scaling.
+  const TOWER_BASE = {
+    "tower-sm": { w: 150, h: 72 },
+    "tower-lg": { w: 360, h: 200 },
+  };
 
   const root = document.getElementById("app");
   const resetBtn = document.getElementById("reset-btn");
@@ -129,6 +149,13 @@
       style: { background: BOX_COLORS[idx] },
       on: opts.onClick ? { click: opts.onClick } : null,
     });
+    // Random per-day sizing for the stacked tower boxes.
+    const base = TOWER_BASE[size];
+    if (base) {
+      const sc = BOX_SCALES[idx];
+      box.style.width = Math.round(base.w * sc.w) + "px";
+      box.style.height = Math.round(base.h * sc.h) + "px";
+    }
     box.appendChild(el("div", { class: "lid" }));
     if (!opened) {
       box.appendChild(
@@ -160,22 +187,24 @@
   }
 
   function renderBoxArrived() {
-    // Whole tower of 7 boxes, shown at once (overview). Click anywhere -> zoom in.
+    // Whole tower of 7 boxes, shown at once (overview).
+    // Auto-advances to the zoomed selection screen after 3 seconds.
     const tower = el("div", { class: "tower" });
     for (let d = 1; d <= 7; d++) {
       tower.appendChild(makeBox(d, "tower-sm", {}));
     }
     const viewport = el("div", { class: "tower-viewport" }, [tower]);
-    return el("div", {
-      class: "tower-screen",
-      on: {
-        click: () => {
-          app.screen = STATE.SELECTION;
-          render();
-        },
-      },
-    }, [
-      el("div", { class: "top-hint", text: "박스가 도착했습니다. 클릭해서 열어보세요." }),
+
+    app.arrivedTimer = setTimeout(function () {
+      app.arrivedTimer = null;
+      if (app.screen === STATE.BOX_ARRIVED) {
+        app.screen = STATE.SELECTION;
+        render();
+      }
+    }, 3000);
+
+    return el("div", { class: "tower-screen" }, [
+      el("div", { class: "top-hint", text: "박스가 도착했습니다. 잠시 후 열립니다…" }),
       viewport,
     ]);
   }
@@ -449,6 +478,11 @@
 
   // ---------- root render ----------
   function render() {
+    // Cancel any pending auto-advance timer from a previous screen.
+    if (app.arrivedTimer) {
+      clearTimeout(app.arrivedTimer);
+      app.arrivedTimer = null;
+    }
     root.innerHTML = "";
     let node;
     switch (app.screen) {
