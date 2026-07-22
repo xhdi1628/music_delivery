@@ -62,8 +62,8 @@
     const arr = [];
     for (let i = 0; i < 7; i++) {
       arr.push({
-        w: 0.72 + Math.random() * 0.5, // 0.72 - 1.22
-        h: 0.72 + Math.random() * 0.5,
+        w: 0.7 + Math.random() * 0.55, // 0.70 - 1.25
+        h: 0.55 + Math.random() * 0.95, // 0.55 - 1.50 (more vertical variety)
       });
     }
     return arr;
@@ -71,8 +71,8 @@
 
   // Base dimensions (px) for the tower box sizes, before random scaling.
   const TOWER_BASE = {
-    "tower-sm": { w: 150, h: 72 },
-    "tower-lg": { w: 360, h: 200 },
+    "tower-sm": { w: 150, h: 64 },
+    "tower-lg": { w: 340, h: 190 },
   };
 
   const root = document.getElementById("app");
@@ -156,15 +156,7 @@
       box.style.width = Math.round(base.w * sc.w) + "px";
       box.style.height = Math.round(base.h * sc.h) + "px";
     }
-    box.appendChild(el("div", { class: "lid" }));
-    if (!opened) {
-      box.appendChild(
-        el("div", {
-          class: "tape",
-          style: { background: TAPE_COLORS[idx] },
-        })
-      );
-    }
+    // Plain rectangle (no lid / no tape) — an image will fill the box later.
     box.appendChild(el("div", { class: "day-label", text: "Day " + day }));
     if (opts.selected) box.classList.add("selected");
     return box;
