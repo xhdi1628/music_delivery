@@ -156,8 +156,7 @@
       box.style.width = Math.round(base.w * sc.w) + "px";
       box.style.height = Math.round(base.h * sc.h) + "px";
     }
-    // Plain rectangle (no lid / no tape) — an image will fill the box later.
-    box.appendChild(el("div", { class: "day-label", text: "Day " + day }));
+    // Plain rectangle (no lid / no tape / no label) — an image will fill the box later.
     if (opts.selected) box.classList.add("selected");
     return box;
   }
