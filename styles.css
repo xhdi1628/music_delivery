@@ -1,0 +1,284 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans KR", sans-serif;
+  background: #F5F1E8;
+  color: #222;
+  overflow: hidden;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* ---------- Reset button ---------- */
+#reset-btn {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 20px;
+  border: 1px solid #999;
+  background: #fff;
+  color: #333;
+  font-size: 13px;
+  border-radius: 999px;
+  cursor: pointer;
+  z-index: 100;
+}
+#reset-btn:hover { background: #f0f0f0; }
+
+/* ---------- Landing (screen 1) ---------- */
+.landing {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.sticker {
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: #FFD84D;
+  border: 4px dashed #333;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  padding: 20px;
+  cursor: pointer;
+  user-select: none;
+  transform: rotate(-8deg);
+}
+
+/* ---------- Box arrived (screen 2) ---------- */
+.box-arrived {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px;
+}
+.box-arrived .hint { font-size: 14px; color: #666; }
+
+/* Generic "box" placeholder */
+.box {
+  position: relative;
+  border: 2px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+.box.big {
+  width: 380px; height: 380px;
+}
+.box.small {
+  width: 100px; height: 100px;
+  flex-shrink: 0;
+}
+
+.box .lid {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 25%;
+  border-bottom: 2px solid #555;
+  background: rgba(0,0,0,0.05);
+}
+.box.opened .lid {
+  height: 15%;
+  background: rgba(0,0,0,0.2);
+}
+
+/* Tape on a closed box (crosses the lid seam) */
+.box .tape {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 12%;
+  width: 30%;
+  height: 26%;
+  border: 1px solid rgba(0,0,0,0.3);
+  opacity: 1;
+  pointer-events: none;
+}
+.box.opened .tape { display: none; }
+
+.box .day-label {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  background: rgba(255,255,255,0.6);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.box.big .day-label { font-size: 20px; bottom: 12px; right: 14px; }
+
+/* ---------- Shell layout (screens 3-6) ---------- */
+.shell {
+  display: flex;
+  width: 100%; height: 100%;
+}
+
+.stack-panel {
+  width: 180px;
+  height: 100%;
+  padding: 20px 10px 60px;
+  overflow-y: auto;
+  border-right: 1px solid #ddd;
+  background: #EFEAD8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.stack-panel .box.small.selected {
+  outline: 3px solid #FF6B35;
+  outline-offset: 2px;
+}
+
+.stage {
+  flex: 1;
+  height: 100%;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.stage h2 { font-size: 18px; color: #555; }
+.stage .hint { font-size: 13px; color: #888; }
+
+/* ---------- Tape tearing (screen 4) ---------- */
+.tearing-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+}
+.tearing-box {
+  position: relative;
+  width: 380px; height: 380px;
+  border: 2px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+  user-select: none;
+}
+.tearing-box .lid {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 25%;
+  border-bottom: 2px solid #555;
+  background: rgba(0,0,0,0.05);
+}
+.tearing-tape {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  top: 12%;
+  width: 30%; height: 26%;
+  border: 1px solid rgba(0,0,0,0.3);
+  cursor: grab;
+  touch-action: none;
+}
+.tearing-tape.dragging { cursor: grabbing; }
+
+.progress-bar {
+  width: 300px; height: 10px;
+  background: #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: #4CAF50;
+  width: 0%;
+}
+
+/* ---------- Opened box + album (screen 5) ---------- */
+.opened-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+}
+.opened-box {
+  position: relative;
+  width: 380px; height: 380px;
+  border: 2px solid #555;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.opened-box .lid {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 15%;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 2px solid #555;
+}
+.album-placeholder {
+  width: 200px; height: 200px;
+  background: #888;
+  border: 2px solid #333;
+  display: flex; align-items: center; justify-content: center;
+  color: #eee;
+  font-size: 13px;
+}
+
+/* ---------- Playing (screen 6) ---------- */
+.player-wrap {
+  width: 100%; max-width: 720px;
+  display: flex; flex-direction: column;
+  gap: 16px;
+}
+.player-header {
+  display: flex; align-items: center; gap: 16px;
+}
+.album-small {
+  width: 80px; height: 80px;
+  background: #888;
+  border: 2px solid #333;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #eee;
+  font-size: 11px;
+}
+.song-meta .title {
+  font-size: 20px; font-weight: 700;
+}
+.song-meta .artist {
+  font-size: 14px; color: #666;
+  margin-top: 4px;
+}
+.song-meta .empty {
+  font-size: 13px; color: #999;
+  font-style: italic;
+}
+
+.player-box {
+  position: relative;
+  width: 100%;
+  border: 2px solid #555;
+  border-radius: 4px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  overflow: hidden;
+}
+.player-box .lid {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 10%;
+  background: rgba(0,0,0,0.4);
+  border-bottom: 2px solid #555;
+  z-index: 2;
+  pointer-events: none;
+}
+.player-box iframe,
+.player-box .no-video {
+  position: absolute;
+  top: 10%; left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 90%;
+  border: 0;
+}
+.player-box .no-video {
+  display: flex; align-items: center; justify-content: center;
+  color: #ccc; font-size: 14px; background: #222;
+}
