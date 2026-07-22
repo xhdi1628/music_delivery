@@ -60,6 +60,47 @@ html, body {
 }
 .box-arrived .hint { font-size: 14px; color: #666; }
 
+/* ---------- Tower of stacked boxes (screens 2-3) ---------- */
+.tower-screen {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center;
+}
+.tower-screen .top-hint {
+  padding: 20px 10px 8px;
+  font-size: 14px; color: #666;
+  text-align: center;
+}
+/* Overview: whole tower visible, centered, not scrollable */
+.tower-viewport {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+/* Zoomed: large boxes, scroll up/down to pick */
+.tower-viewport.scrollable {
+  overflow-y: auto;
+  align-items: flex-start;
+}
+.tower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.tower-viewport.scrollable .tower {
+  /* padding so first/last box can reach the vertical center */
+  padding: 40vh 0;
+}
+
+/* Tower box sizes */
+.box.tower-sm { width: 150px; height: 84px; flex-shrink: 0; }
+.box.tower-lg { width: 360px; height: 200px; flex-shrink: 0; }
+.box.tower-lg .day-label { font-size: 18px; }
+
 /* Generic "box" placeholder */
 .box {
   position: relative;

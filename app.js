@@ -160,15 +160,23 @@
   }
 
   function renderBoxArrived() {
-    const box = makeBox(app.selectedDay || 1, "big", {
-      onClick: () => {
-        app.screen = STATE.SELECTION;
-        render();
+    // Whole tower of 7 boxes, shown at once (overview). Click anywhere -> zoom in.
+    const tower = el("div", { class: "tower" });
+    for (let d = 1; d <= 7; d++) {
+      tower.appendChild(makeBox(d, "tower-sm", {}));
+    }
+    const viewport = el("div", { class: "tower-viewport" }, [tower]);
+    return el("div", {
+      class: "tower-screen",
+      on: {
+        click: () => {
+          app.screen = STATE.SELECTION;
+          render();
+        },
       },
-    });
-    return el("div", { class: "box-arrived" }, [
-      el("div", { class: "hint", text: "박스가 도착했습니다. 클릭해서 열어보세요." }),
-      box,
+    }, [
+      el("div", { class: "top-hint", text: "박스가 도착했습니다. 클릭해서 열어보세요." }),
+      viewport,
     ]);
   }
 
@@ -188,22 +196,73 @@
     return el("div", { class: "shell" }, [renderStackPanel(), stageContent]);
   }
 
-  function renderSelectionStage() {
-    const bigBox = makeBox(app.selectedDay, "big", {
-      onClick: () => {
-        app.tapeProgress = 0;
-        app.screen = isOpened(app.selectedDay) ? STATE.OPENED : STATE.TEARING;
-        render();
-      },
-    });
-    return el("div", { class: "stage" }, [
-      el("h2", { text: monthLabel() + " 박스를 골라보세요" }),
-      bigBox,
+  function renderSelection() {
+    // Zoomed, scrollable tower. Scroll up/down to move through boxes;
+    // the box nearest the vertical center is highlighted as selected.
+    // Click a box to open it.
+    const tower = el("div", { class: "tower" });
+    const boxEls = [];
+    for (let d = 1; d <= 7; d++) {
+      const day = d;
+      const b = makeBox(day, "tower-lg", {
+        onClick: () => {
+          app.selectedDay = day;
+          app.tapeProgress = 0;
+          app.screen = isOpened(day) ? STATE.OPENED : STATE.TEARING;
+          render();
+        },
+      });
+      boxEls.push({ day: day, elm: b });
+      tower.appendChild(b);
+    }
+
+    const viewport = el("div", { class: "tower-viewport scrollable" }, [tower]);
+
+    function refreshSelected() {
+      const vpRect = viewport.getBoundingClientRect();
+      const centerY = vpRect.top + vpRect.height / 2;
+      let best = null;
+      let bestDist = Infinity;
+      boxEls.forEach(function (item) {
+        const r = item.elm.getBoundingClientRect();
+        const c = r.top + r.height / 2;
+        const dist = Math.abs(c - centerY);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = item;
+        }
+      });
+      boxEls.forEach(function (item) {
+        item.elm.classList.remove("selected");
+      });
+      if (best) {
+        best.elm.classList.add("selected");
+        app.selectedDay = best.day;
+      }
+    }
+
+    viewport.addEventListener("scroll", refreshSelected);
+
+    const screen = el("div", { class: "tower-screen" }, [
       el("div", {
-        class: "hint",
-        text: "왼쪽에서 스크롤하며 박스를 선택하고, 큰 박스를 클릭하세요.",
+        class: "top-hint",
+        text: monthLabel() + " 박스를 위아래로 스크롤해서 고르고, 클릭해서 열어보세요.",
       }),
+      viewport,
     ]);
+
+    // Center the initially-selected box and set the highlight once mounted.
+    requestAnimationFrame(function () {
+      const sel = boxEls.find(function (i) {
+        return i.day === app.selectedDay;
+      });
+      if (sel) {
+        sel.elm.scrollIntoView({ block: "center" });
+      }
+      refreshSelected();
+    });
+
+    return screen;
   }
 
   function renderTearingStage() {
@@ -400,7 +459,7 @@
         node = renderBoxArrived();
         break;
       case STATE.SELECTION:
-        node = renderShell(renderSelectionStage());
+        node = renderSelection();
         break;
       case STATE.TEARING:
         node = renderShell(renderTearingStage());
