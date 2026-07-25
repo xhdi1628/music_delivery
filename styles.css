@@ -281,10 +281,14 @@ html, body {
 .box3 .bar.top { top: -14px; }
 .box3 .bar.bottom { bottom: -14px; }
 
-/* Video fills the interior; fades in when playback starts. */
+/* Video: 16:9, centered on top of the box (not filling it).
+   Size is a placeholder (70% of box width) — adjust `width` later. */
 .box3 .video-frame {
   position: absolute;
-  inset: 0;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  aspect-ratio: 16 / 9;
   z-index: 3;
   background: #000;
   overflow: hidden;
