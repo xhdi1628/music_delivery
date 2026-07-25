@@ -239,107 +239,94 @@ html, body {
   width: 0%;
 }
 
-/* ---------- Player: opened box with video on top (screens 5-6) ---------- */
-/* Album + title sit above the box. The box opens with side flaps spread
-   outward and the video sits on top of it. The album starts large &
-   centered, then shrinks up to the header slot. */
-.player2 {
+/* ---------- Player: opened box, album rises inside it (screens 5-6) ---------- */
+/* The opened box stays visible the whole time and keeps the selected box's
+   own size ratio. The album shows inside the box (centered), then rises to
+   the header slot above the box while the video plays. */
+.player3 {
   position: relative;
-  width: 860px;
-  height: 520px;
 }
 
-/* Title / artist above the box, beside the album's final slot. */
-.p2-meta {
+/* The box interior (its size is set inline per selected box). */
+.box3 {
+  position: relative;
+  /* slightly darker inside look, over the box color */
+  box-shadow: inset 0 0 0 4000px rgba(0, 0, 0, 0.12);
+}
+
+/* Side flaps: trapezoids angled outward from the box sides. */
+.box3 .flap {
   position: absolute;
-  z-index: 5;
-  left: 384px; top: 30px; width: 300px;
-  opacity: 0;
-  transition: opacity 0.3s ease 0.4s;
-}
-.player2.playing .p2-meta { opacity: 1; }
-.p2-meta .title { font-size: 20px; font-weight: 700; color: #222; }
-.p2-meta .artist { font-size: 14px; color: #555; margin-top: 6px; }
-.p2-meta .empty { font-size: 13px; color: #888; font-style: italic; }
-
-/* The opened box (flaps + bars). Everything fades in when playing. */
-.p2-box { position: absolute; inset: 0; }
-.p2-box .flap,
-.p2-box .bar,
-.p2-box .video-frame {
-  opacity: 0;
-  transition: opacity 0.4s ease 0.1s;
-}
-.player2.playing .p2-box .flap,
-.player2.playing .p2-box .bar,
-.player2.playing .p2-box .video-frame { opacity: 1; }
-
-/* Side flaps: trapezoids angled outward, behind the video. */
-.p2-box .flap {
-  position: absolute;
-  top: 120px;
-  width: 96px; height: 380px;
+  top: -20px; bottom: -20px;
+  width: 92px;
   z-index: 1;
 }
-.p2-box .flap.left {
-  left: 34px;
-  clip-path: polygon(0 0, 100% 8%, 100% 97%, 0 100%);
+.box3 .flap.left {
+  left: -92px;
+  clip-path: polygon(0 0, 100% 6%, 100% 94%, 0 100%);
 }
-.p2-box .flap.right {
-  right: 34px;
-  clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 97%);
+.box3 .flap.right {
+  right: -92px;
+  clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 94%);
 }
 
 /* Top / bottom flaps seen edge-on as bars, slightly darker. */
-.p2-box .bar {
+.box3 .bar {
   position: absolute;
-  left: 118px; right: 118px;
-  height: 16px;
+  left: -8px; right: -8px;
+  height: 14px;
   z-index: 2;
   filter: brightness(0.82);
 }
-.p2-box .bar.top { top: 136px; }
-.p2-box .bar.bottom { top: 486px; }
+.box3 .bar.top { top: -14px; }
+.box3 .bar.bottom { bottom: -14px; }
 
-/* Video on top of the box. */
-.p2-box .video-frame {
+/* Video fills the interior; fades in when playback starts. */
+.box3 .video-frame {
   position: absolute;
-  left: 130px; top: 150px;
-  width: 600px; height: 338px;
+  inset: 0;
   z-index: 3;
   background: #000;
-  border-radius: 2px;
   overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.1s;
 }
-.p2-box .video-frame iframe,
-.p2-box .video-frame .no-video {
+.player3.playing .box3 .video-frame { opacity: 1; }
+.box3 .video-frame iframe,
+.box3 .video-frame .no-video {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   border: 0;
 }
-.p2-box .video-frame .no-video {
+.box3 .video-frame .no-video {
   display: flex; align-items: center; justify-content: center;
   color: #ccc; font-size: 14px; background: #222;
 }
 
-/* Album: intro = large, centered over the video; playing = small, header. */
-.p2-album {
+/* Title / artist in the header slot above the box. */
+.box3 .p3-meta {
   position: absolute;
   z-index: 5;
-  width: 300px; height: 300px;
-  left: 280px; top: 169px;
-  background: #888;
-  border: 2px solid #333;
+  left: 84px; top: -90px; width: 260px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.4s;
+}
+.player3.playing .box3 .p3-meta { opacity: 1; }
+.box3 .p3-meta .title { font-size: 20px; font-weight: 700; color: #222; }
+.box3 .p3-meta .artist { font-size: 14px; color: #444; margin-top: 6px; }
+.box3 .p3-meta .empty { font-size: 13px; color: #333; font-style: italic; }
+
+/* Album: starts centered inside the box (size/pos set inline), rises to the
+   header slot above the box. */
+.box3 .p3-album {
+  position: absolute;
+  z-index: 6;
+  background: #fff;
   display: flex; align-items: center; justify-content: center;
-  color: #eee; font-size: 13px;
+  color: #222; font-size: 13px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               left 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               top 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               font-size 0.6s ease;
-}
-.player2.playing .p2-album {
-  width: 72px; height: 72px;
-  left: 300px; top: 24px;
-  font-size: 10px;
 }

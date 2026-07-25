@@ -293,7 +293,7 @@
   }
 
   // Fixed size of the focused (tearing) box — uniform across all boxes.
-  const FOCUS_BASE = { w: 504, h: 282 };
+  const FOCUS_BASE = { w: 756, h: 423 };
 
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
@@ -397,19 +397,39 @@
     ]);
   }
 
-  // Opened-box player. Album + title sit above the box; the box opens with
-  // side flaps spread out, and the video sits on top of the box. The album
-  // starts large & centered, then (withIntro) shrinks up to the header.
+  // Opened-box player. The opened box stays visible the whole time and keeps
+  // the selected box's own size ratio. The album appears inside the box,
+  // centered, then (withIntro) rises up to the header while the video plays.
   function renderPlayer(withIntro) {
     const idx = app.selectedDay - 1;
     const song = songByDay(app.selectedDay) || {};
     const hasVideo = !!song.videoId;
     const boxColor = BOX_COLORS[idx];
+    const sc = BOX_SCALES[idx];
 
-    const player = el("div", { class: "player2" });
+    // Interior (the inside of the box), sized to this box's own ratio.
+    const IW = Math.round(560 * sc.w);
+    const IH = Math.round(360 * sc.h);
+    const albumSide = Math.round(Math.min(IW, IH) * 0.62);
 
-    // Title / artist, above the box next to the album slot.
-    const meta = el("div", { class: "p2-meta" });
+    const player = el("div", { class: "player3" });
+
+    // The opened box: interior + side flaps + top/bottom bars. Always shown.
+    const box = el("div", {
+      class: "box3",
+      style: { width: IW + "px", height: IH + "px", background: boxColor },
+    });
+    box.appendChild(el("div", { class: "flap left", style: { background: boxColor } }));
+    box.appendChild(el("div", { class: "flap right", style: { background: boxColor } }));
+    box.appendChild(el("div", { class: "bar top", style: { background: boxColor } }));
+    box.appendChild(el("div", { class: "bar bottom", style: { background: boxColor } }));
+
+    // Video fills the interior, revealed when playback starts.
+    const videoFrame = el("div", { class: "video-frame" });
+    box.appendChild(videoFrame);
+
+    // Title / artist above the box (in the header slot).
+    const meta = el("div", { class: "p3-meta" });
     if (song.title || song.artist) {
       if (song.title) meta.appendChild(el("div", { class: "title", text: song.title }));
       if (song.artist) meta.appendChild(el("div", { class: "artist", text: song.artist }));
@@ -421,22 +441,29 @@
         })
       );
     }
-    player.appendChild(meta);
+    box.appendChild(meta);
 
-    // Opened box: side flaps + top/bottom bars, with the video on top.
-    const box = el("div", { class: "p2-box" }, [
-      el("div", { class: "flap left", style: { background: boxColor } }),
-      el("div", { class: "flap right", style: { background: boxColor } }),
-      el("div", { class: "bar top", style: { background: boxColor } }),
-      el("div", { class: "bar bottom", style: { background: boxColor } }),
-    ]);
-    const videoFrame = el("div", { class: "video-frame" });
-    box.appendChild(videoFrame);
+    // Album: starts centered inside the box, then rises to the header slot.
+    const album = el("div", {
+      class: "p3-album",
+      text: "앨범 이미지",
+      style: {
+        width: albumSide + "px",
+        height: albumSide + "px",
+        left: Math.round((IW - albumSide) / 2) + "px",
+        top: Math.round((IH - albumSide) / 2) + "px",
+      },
+    });
+    box.appendChild(album);
+
     player.appendChild(box);
 
-    // Album: animates from large-centered to the small header slot.
-    const album = el("div", { class: "p2-album", text: "앨범 이미지" });
-    player.appendChild(album);
+    function raiseAlbum() {
+      album.style.width = "72px";
+      album.style.height = "72px";
+      album.style.left = "6px";
+      album.style.top = "-96px";
+    }
 
     function startVideo() {
       if (hasVideo) {
@@ -466,15 +493,17 @@
     }
 
     if (withIntro) {
-      // Start with the big centered album; after 1s open the box, move the
-      // album up to the header, and start the video.
+      // Box + album (centered inside) show first; after 1s the album rises to
+      // the header and the video plays. The box stays visible throughout.
       app.albumTimer = setTimeout(function () {
         app.albumTimer = null;
         player.classList.add("playing");
+        raiseAlbum();
         startVideo();
       }, 1000);
     } else {
       player.classList.add("playing");
+      raiseAlbum();
       startVideo();
     }
 
