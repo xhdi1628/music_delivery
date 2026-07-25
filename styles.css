@@ -207,18 +207,13 @@ html, body {
   overflow: hidden;
   user-select: none;
 }
-.tearing-box .lid {
-  position: absolute; top: 0; left: 0; right: 0;
-  height: 25%;
-  border-bottom: 2px solid #555;
-  background: rgba(0,0,0,0.05);
-}
 .tearing-tape {
   position: absolute;
-  left: 50%; transform: translateX(-50%);
-  top: 12%;
-  width: 30%; height: 26%;
-  border: 1px solid rgba(0,0,0,0.3);
+  top: 50%; transform: translateY(-50%);
+  left: 0; right: 0;
+  height: 15%;
+  border-top: 1px solid rgba(0,0,0,0.3);
+  border-bottom: 1px solid rgba(0,0,0,0.3);
   cursor: grab;
   touch-action: none;
 }

@@ -52,6 +52,7 @@
       openedBoxes: s.openedBoxes,
       selectedDay: 1,
       tapeProgress: 0,
+      tapeDir: 0,
       arrivedTimer: null,
     };
   })();
@@ -82,6 +83,7 @@
     app.openedBoxes = [];
     app.selectedDay = 1;
     app.tapeProgress = 0;
+    app.tapeDir = 0;
     app.screen = STATE.LANDING;
     saveStorage();
     render();
@@ -112,6 +114,7 @@
   function goToBox(day) {
     app.selectedDay = day;
     app.tapeProgress = 0;
+    app.tapeDir = 0;
     app.screen = isOpened(day) ? STATE.PLAYING : STATE.TEARING;
     render();
   }
@@ -228,6 +231,7 @@
         onClick: () => {
           app.selectedDay = day;
           app.tapeProgress = 0;
+          app.tapeDir = 0;
           app.screen = isOpened(day) ? STATE.OPENED : STATE.TEARING;
           render();
         },
@@ -287,11 +291,10 @@
 
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
-    const tearingBox = el(
-      "div",
-      { class: "tearing-box", style: { background: BOX_COLORS[idx] } },
-      [el("div", { class: "lid" })]
-    );
+    const tearingBox = el("div", {
+      class: "tearing-box",
+      style: { background: BOX_COLORS[idx] },
+    });
 
     const tape = el("div", {
       class: "tearing-tape",
@@ -308,19 +311,34 @@
     });
     const bar = el("div", { class: "progress-bar" }, [fill]);
 
-    // ---- interactions: click adds a bit, drag adds by distance ----
-    const CLICK_STEP = 0.15;
-    const DRAG_TO_FULL_PX = 300;
+    // ---- interaction: a single left/right drag peels the tape in that
+    // direction; progress follows drag distance and the box opens at 100%.
+    const DRAG_TO_FULL_PX = 220;
 
     let dragging = false;
     let dragStartX = 0;
-    let dragStartY = 0;
     let dragStartProgress = 0;
-    let didDrag = false;
+
+    function applyTapeVisual() {
+      const pct = (app.tapeProgress * 100).toFixed(1) + "%";
+      if (app.tapeDir === 1) {
+        // Peeling to the right: torn part recedes from the left edge.
+        tape.style.left = pct;
+        tape.style.right = "0";
+      } else if (app.tapeDir === -1) {
+        // Peeling to the left: torn part recedes from the right edge.
+        tape.style.left = "0";
+        tape.style.right = pct;
+      } else {
+        tape.style.left = "0";
+        tape.style.right = "0";
+      }
+    }
 
     function updateProgress(next) {
       app.tapeProgress = Math.max(0, Math.min(1, next));
       fill.style.width = (app.tapeProgress * 100).toFixed(0) + "%";
+      applyTapeVisual();
       if (app.tapeProgress >= 1) {
         markOpened(app.selectedDay);
         app.screen = STATE.OPENED;
@@ -328,29 +346,28 @@
       }
     }
 
-    function pointerXY(e) {
-      if (e.touches && e.touches[0]) return [e.touches[0].clientX, e.touches[0].clientY];
-      return [e.clientX, e.clientY];
+    function pointerX(e) {
+      if (e.touches && e.touches[0]) return e.touches[0].clientX;
+      return e.clientX;
     }
 
     function onDown(e) {
       dragging = true;
-      didDrag = false;
-      const [x, y] = pointerXY(e);
-      dragStartX = x;
-      dragStartY = y;
+      dragStartX = pointerX(e);
       dragStartProgress = app.tapeProgress;
       tape.classList.add("dragging");
       e.preventDefault();
     }
     function onMove(e) {
       if (!dragging) return;
-      const [x, y] = pointerXY(e);
-      const dx = x - dragStartX;
-      const dy = y - dragStartY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > 4) didDrag = true;
-      updateProgress(dragStartProgress + dist / DRAG_TO_FULL_PX);
+      const dx = pointerX(e) - dragStartX;
+      if (app.tapeDir === 0 && Math.abs(dx) > 6) {
+        app.tapeDir = dx > 0 ? 1 : -1;
+      }
+      if (app.tapeDir !== 0) {
+        const signedDx = dx * app.tapeDir;
+        updateProgress(dragStartProgress + signedDx / DRAG_TO_FULL_PX);
+      }
     }
     function onUp() {
       if (!dragging) return;
@@ -365,10 +382,7 @@
     window.addEventListener("mouseup", onUp);
     window.addEventListener("touchend", onUp);
 
-    tape.addEventListener("click", () => {
-      if (didDrag) return;
-      updateProgress(app.tapeProgress + CLICK_STEP);
-    });
+    applyTapeVisual();
 
     return el("div", { class: "stage" }, [
       el("h2", { text: "테이프를 뜯어주세요" }),
@@ -377,7 +391,7 @@
         bar,
         el("div", {
           class: "hint",
-          text: "테이프를 클릭하거나 드래그해서 뜯어주세요.",
+          text: "테이프를 좌우로 드래그해서 뜯어주세요.",
         }),
       ]),
     ]);
