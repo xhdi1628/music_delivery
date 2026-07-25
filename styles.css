@@ -219,7 +219,7 @@ html, body {
   position: absolute;
   top: 50%; transform: translateY(-50%);
   left: 0; right: 0;
-  height: 15%;
+  height: 48px; /* fixed thickness so it stays uniform across varied boxes */
   border-top: 1px solid rgba(0,0,0,0.3);
   border-bottom: 1px solid rgba(0,0,0,0.3);
   cursor: grab;

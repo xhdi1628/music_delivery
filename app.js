@@ -292,18 +292,26 @@
     return screen;
   }
 
-  // Fixed size of the focused (tearing) box — uniform across all boxes.
+  // Base size of the focused box; scaled per box so each keeps its own size.
   const FOCUS_BASE = { w: 756, h: 423 };
+
+  function focusSize(idx) {
+    const sc = BOX_SCALES[idx];
+    return {
+      w: Math.round(FOCUS_BASE.w * sc.w),
+      h: Math.round(FOCUS_BASE.h * sc.h),
+    };
+  }
 
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
-    // Fixed size for every box so the tape thickness stays uniform.
+    const size = focusSize(idx);
     const tearingBox = el("div", {
       class: "tearing-box",
       style: {
         background: BOX_COLORS[idx],
-        width: FOCUS_BASE.w + "px",
-        height: FOCUS_BASE.h + "px",
+        width: size.w + "px",
+        height: size.h + "px",
       },
     });
 
@@ -405,11 +413,12 @@
     const song = songByDay(app.selectedDay) || {};
     const hasVideo = !!song.videoId;
     const boxColor = BOX_COLORS[idx];
-    const sc = BOX_SCALES[idx];
 
-    // Interior (the inside of the box), sized to this box's own ratio.
-    const IW = Math.round(560 * sc.w);
-    const IH = Math.round(360 * sc.h);
+    // Box body: same per-box size as the tearing box, so tearing -> opened
+    // keeps this box's body size (flaps are added outside of this).
+    const size = focusSize(idx);
+    const IW = size.w;
+    const IH = size.h;
     const albumSide = Math.round(Math.min(IW, IH) * 0.62);
 
     const player = el("div", { class: "player3" });
