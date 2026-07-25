@@ -162,21 +162,29 @@ html, body {
 }
 
 .stack-panel {
-  width: 180px;
+  width: 150px;
   height: 100%;
-  padding: 20px 10px 60px;
+  padding: 12px 0;
   overflow-y: auto;
-  border-right: 1px solid #ddd;
-  background: #EFEAD8;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  justify-content: center;
+  gap: 0;
 }
 
-.stack-panel .box.small.selected {
-  outline: 3px solid #FF6B35;
-  outline-offset: 2px;
+/* Left stack boxes: same per-box ratio as the selection tower, no gaps,
+   no border by default; dimmed unless selected. */
+.box.stack {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 0;
+  opacity: 0.5;
+}
+.stack-panel .box.stack.selected {
+  opacity: 1;
+  outline: 2px solid #333;
+  outline-offset: -2px;
 }
 
 .stage {

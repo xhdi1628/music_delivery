@@ -75,6 +75,8 @@
   const TOWER_BASE = {
     "tower-sm": { w: 150, h: 64 },
     "tower-lg": { w: 340, h: 190 },
+    // Left side stack: same per-box ratio as tower-lg, scaled down.
+    stack: { w: 100, h: 56 },
   };
 
   const root = document.getElementById("app");
@@ -207,7 +209,7 @@
   function renderStackPanel() {
     const stack = el("div", { class: "stack-panel" });
     for (let d = 1; d <= 7; d++) {
-      const b = makeBox(d, "small", {
+      const b = makeBox(d, "stack", {
         selected: d === app.selectedDay,
         onClick: () => goToBox(d),
       });
