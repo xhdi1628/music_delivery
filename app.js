@@ -292,11 +292,19 @@
     return screen;
   }
 
+  // Enlarged base for the focused box, kept at the selection tower ratio.
+  const FOCUS_BASE = { w: 420, h: 235 };
+
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
+    const sc = BOX_SCALES[idx];
     const tearingBox = el("div", {
       class: "tearing-box",
-      style: { background: BOX_COLORS[idx] },
+      style: {
+        background: BOX_COLORS[idx],
+        width: Math.round(FOCUS_BASE.w * sc.w) + "px",
+        height: Math.round(FOCUS_BASE.h * sc.h) + "px",
+      },
     });
 
     const tape = el("div", {
