@@ -89,15 +89,14 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 0;
 }
 .tower-viewport.scrollable .tower {
   /* padding so first/last box can reach the vertical center */
   padding: 40vh 0;
-  gap: 0;
 }
-/* Selection boxes: no gap, no border. */
-.tower-viewport.scrollable .box { border: none; }
+/* Tower boxes (arrival overview + selection): no gap, no border. */
+.tower-viewport .box { border: none; }
 
 /* Tower box sizes */
 .box.tower-sm { width: 150px; height: 84px; flex-shrink: 0; }

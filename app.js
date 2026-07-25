@@ -292,18 +292,18 @@
     return screen;
   }
 
-  // Enlarged base for the focused box, kept at the selection tower ratio.
+  // Fixed size of the focused (tearing) box — uniform across all boxes.
   const FOCUS_BASE = { w: 504, h: 282 };
 
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
-    const sc = BOX_SCALES[idx];
+    // Fixed size for every box so the tape thickness stays uniform.
     const tearingBox = el("div", {
       class: "tearing-box",
       style: {
         background: BOX_COLORS[idx],
-        width: Math.round(FOCUS_BASE.w * sc.w) + "px",
-        height: Math.round(FOCUS_BASE.h * sc.h) + "px",
+        width: FOCUS_BASE.w + "px",
+        height: FOCUS_BASE.h + "px",
       },
     });
 
