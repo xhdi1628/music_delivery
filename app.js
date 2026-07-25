@@ -192,7 +192,7 @@
         app.screen = STATE.SELECTION;
         render();
       }
-    }, 3000);
+    }, 1500);
 
     return el("div", { class: "tower-screen" }, [
       el("div", { class: "top-hint", text: "박스가 도착했습니다. 잠시 후 열립니다…" }),
