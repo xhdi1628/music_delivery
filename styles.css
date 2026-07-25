@@ -94,7 +94,10 @@ html, body {
 .tower-viewport.scrollable .tower {
   /* padding so first/last box can reach the vertical center */
   padding: 40vh 0;
+  gap: 0;
 }
+/* Selection boxes: no gap, no border. */
+.tower-viewport.scrollable .box { border: none; }
 
 /* Tower box sizes */
 .box.tower-sm { width: 150px; height: 84px; flex-shrink: 0; }
@@ -105,7 +108,6 @@ html, body {
 .box {
   position: relative;
   border: 2px solid #555;
-  border-radius: 4px;
   cursor: pointer;
   user-select: none;
 }
@@ -211,7 +213,6 @@ html, body {
   position: relative;
   width: 380px; height: 380px;
   border: 2px solid #555;
-  border-radius: 4px;
   overflow: hidden;
   user-select: none;
 }

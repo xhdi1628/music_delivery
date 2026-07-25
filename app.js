@@ -293,7 +293,7 @@
   }
 
   // Enlarged base for the focused box, kept at the selection tower ratio.
-  const FOCUS_BASE = { w: 420, h: 235 };
+  const FOCUS_BASE = { w: 504, h: 282 };
 
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
