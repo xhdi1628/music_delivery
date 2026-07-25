@@ -397,28 +397,19 @@
     ]);
   }
 
-  // Unified opened/playing view. The delivery box stays as the backdrop;
-  // the album shows large & centered, then (withIntro) shrinks up to the
-  // top-left after 1s while the video starts playing behind it.
+  // Opened-box player. Album + title sit above the box; the box opens with
+  // side flaps spread out, and the video sits on top of the box. The album
+  // starts large & centered, then (withIntro) shrinks up to the header.
   function renderPlayer(withIntro) {
     const idx = app.selectedDay - 1;
     const song = songByDay(app.selectedDay) || {};
     const hasVideo = !!song.videoId;
+    const boxColor = BOX_COLORS[idx];
 
-    const stagebox = el("div", {
-      class: "stagebox",
-      style: { background: BOX_COLORS[idx] },
-    });
-    stagebox.appendChild(el("div", { class: "lid" }));
+    const player = el("div", { class: "player2" });
 
-    // Video sits inside the box, behind the album; the box frames it.
-    const videoFrame = el("div", { class: "video-frame" });
-    stagebox.appendChild(videoFrame);
-
-    const album = el("div", { class: "album", text: "앨범 이미지" });
-    stagebox.appendChild(album);
-
-    const meta = el("div", { class: "meta" });
+    // Title / artist, above the box next to the album slot.
+    const meta = el("div", { class: "p2-meta" });
     if (song.title || song.artist) {
       if (song.title) meta.appendChild(el("div", { class: "title", text: song.title }));
       if (song.artist) meta.appendChild(el("div", { class: "artist", text: song.artist }));
@@ -430,7 +421,22 @@
         })
       );
     }
-    stagebox.appendChild(meta);
+    player.appendChild(meta);
+
+    // Opened box: side flaps + top/bottom bars, with the video on top.
+    const box = el("div", { class: "p2-box" }, [
+      el("div", { class: "flap left", style: { background: boxColor } }),
+      el("div", { class: "flap right", style: { background: boxColor } }),
+      el("div", { class: "bar top", style: { background: boxColor } }),
+      el("div", { class: "bar bottom", style: { background: boxColor } }),
+    ]);
+    const videoFrame = el("div", { class: "video-frame" });
+    box.appendChild(videoFrame);
+    player.appendChild(box);
+
+    // Album: animates from large-centered to the small header slot.
+    const album = el("div", { class: "p2-album", text: "앨범 이미지" });
+    player.appendChild(album);
 
     function startVideo() {
       if (hasVideo) {
@@ -460,19 +466,19 @@
     }
 
     if (withIntro) {
-      // Start with the big centered album; after 1s animate to the corner
-      // and reveal the video.
+      // Start with the big centered album; after 1s open the box, move the
+      // album up to the header, and start the video.
       app.albumTimer = setTimeout(function () {
         app.albumTimer = null;
-        stagebox.classList.add("playing");
+        player.classList.add("playing");
         startVideo();
       }, 1000);
     } else {
-      stagebox.classList.add("playing");
+      player.classList.add("playing");
       startVideo();
     }
 
-    return el("div", { class: "stage" }, [stagebox]);
+    return el("div", { class: "stage" }, [player]);
   }
 
   function renderOpenedStage() {

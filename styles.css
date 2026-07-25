@@ -239,58 +239,95 @@ html, body {
   width: 0%;
 }
 
-/* ---------- Player: opened box + album + video (screens 5-6) ---------- */
-/* The delivery box is the backdrop (its color / a box image later). The
-   album shows large & centered, then shrinks up to the corner while the
-   video plays inside the box. */
-.stagebox {
+/* ---------- Player: opened box with video on top (screens 5-6) ---------- */
+/* Album + title sit above the box. The box opens with side flaps spread
+   outward and the video sits on top of it. The album starts large &
+   centered, then shrinks up to the header slot. */
+.player2 {
   position: relative;
-  width: min(680px, 92vw);
-  border: 2px solid #555;
-  border-radius: 6px;
-  overflow: hidden;
-  /* background color set inline per box; ready for a box image later */
-}
-.stagebox .lid {
-  position: absolute; top: 0; left: 0; right: 0;
-  height: 42px;
-  background: rgba(0,0,0,0.2);
-  border-bottom: 2px solid #555;
-  z-index: 3;
-  pointer-events: none;
+  width: 860px;
+  height: 520px;
 }
 
-/* Video sits inside the box, framed by the box color around it. */
-.stagebox .video-frame {
-  position: relative;
-  margin: 120px 16px 16px;
-  aspect-ratio: 16 / 9;
-  background: #000;
-  border: 2px solid #333;
-  border-radius: 4px;
-  overflow: hidden;
+/* Title / artist above the box, beside the album's final slot. */
+.p2-meta {
+  position: absolute;
+  z-index: 5;
+  left: 384px; top: 30px; width: 300px;
   opacity: 0;
-  transition: opacity 0.4s ease 0.15s;
+  transition: opacity 0.3s ease 0.4s;
 }
-.stagebox.playing .video-frame { opacity: 1; }
-.stagebox .video-frame iframe,
-.stagebox .video-frame .no-video {
+.player2.playing .p2-meta { opacity: 1; }
+.p2-meta .title { font-size: 20px; font-weight: 700; color: #222; }
+.p2-meta .artist { font-size: 14px; color: #555; margin-top: 6px; }
+.p2-meta .empty { font-size: 13px; color: #888; font-style: italic; }
+
+/* The opened box (flaps + bars). Everything fades in when playing. */
+.p2-box { position: absolute; inset: 0; }
+.p2-box .flap,
+.p2-box .bar,
+.p2-box .video-frame {
+  opacity: 0;
+  transition: opacity 0.4s ease 0.1s;
+}
+.player2.playing .p2-box .flap,
+.player2.playing .p2-box .bar,
+.player2.playing .p2-box .video-frame { opacity: 1; }
+
+/* Side flaps: trapezoids angled outward, behind the video. */
+.p2-box .flap {
+  position: absolute;
+  top: 120px;
+  width: 96px; height: 380px;
+  z-index: 1;
+}
+.p2-box .flap.left {
+  left: 34px;
+  clip-path: polygon(0 0, 100% 8%, 100% 97%, 0 100%);
+}
+.p2-box .flap.right {
+  right: 34px;
+  clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 97%);
+}
+
+/* Top / bottom flaps seen edge-on as bars, slightly darker. */
+.p2-box .bar {
+  position: absolute;
+  left: 118px; right: 118px;
+  height: 16px;
+  z-index: 2;
+  filter: brightness(0.82);
+}
+.p2-box .bar.top { top: 136px; }
+.p2-box .bar.bottom { top: 486px; }
+
+/* Video on top of the box. */
+.p2-box .video-frame {
+  position: absolute;
+  left: 130px; top: 150px;
+  width: 600px; height: 338px;
+  z-index: 3;
+  background: #000;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.p2-box .video-frame iframe,
+.p2-box .video-frame .no-video {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   border: 0;
 }
-.stagebox .video-frame .no-video {
+.p2-box .video-frame .no-video {
   display: flex; align-items: center; justify-content: center;
   color: #ccc; font-size: 14px; background: #222;
 }
 
-/* Album: intro = large, centered; playing = small, top-left corner. */
-.stagebox .album {
+/* Album: intro = large, centered over the video; playing = small, header. */
+.p2-album {
   position: absolute;
-  z-index: 4;
+  z-index: 5;
   width: 300px; height: 300px;
-  left: 50%; top: 46%;
-  transform: translate(-50%, -50%);
+  left: 280px; top: 169px;
   background: #888;
   border: 2px solid #333;
   display: flex; align-items: center; justify-content: center;
@@ -299,25 +336,10 @@ html, body {
               height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               left 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               top 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               font-size 0.6s ease;
 }
-.stagebox.playing .album {
-  width: 68px; height: 68px;
-  left: 16px; top: 44px;
-  transform: translate(0, 0);
+.player2.playing .p2-album {
+  width: 72px; height: 72px;
+  left: 300px; top: 24px;
   font-size: 10px;
 }
-
-/* Title / artist, fade in beside the shrunken album. */
-.stagebox .meta {
-  position: absolute;
-  z-index: 4;
-  left: 96px; top: 50px; right: 16px;
-  opacity: 0;
-  transition: opacity 0.3s ease 0.4s;
-}
-.stagebox.playing .meta { opacity: 1; }
-.stagebox .meta .title { font-size: 18px; font-weight: 700; color: #222; }
-.stagebox .meta .artist { font-size: 13px; color: #444; margin-top: 4px; }
-.stagebox .meta .empty { font-size: 12px; color: #555; font-style: italic; }
