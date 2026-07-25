@@ -301,15 +301,6 @@
       style: { background: TAPE_COLORS[idx] },
     });
     tearingBox.appendChild(tape);
-    tearingBox.appendChild(
-      el("div", { class: "day-label", text: "Day " + app.selectedDay })
-    );
-
-    const fill = el("div", {
-      class: "fill",
-      style: { width: (app.tapeProgress * 100).toFixed(0) + "%" },
-    });
-    const bar = el("div", { class: "progress-bar" }, [fill]);
 
     // ---- interaction: a single left/right drag peels the tape in that
     // direction; progress follows drag distance and the box opens at 100%.
@@ -337,7 +328,6 @@
 
     function updateProgress(next) {
       app.tapeProgress = Math.max(0, Math.min(1, next));
-      fill.style.width = (app.tapeProgress * 100).toFixed(0) + "%";
       applyTapeVisual();
       if (app.tapeProgress >= 1) {
         markOpened(app.selectedDay);
@@ -388,7 +378,6 @@
       el("h2", { text: "테이프를 뜯어주세요" }),
       el("div", { class: "tearing-wrap" }, [
         tearingBox,
-        bar,
         el("div", {
           class: "hint",
           text: "테이프를 좌우로 드래그해서 뜯어주세요.",
