@@ -54,6 +54,7 @@
       tapeProgress: 0,
       tapeDir: 0,
       arrivedTimer: null,
+      albumTimer: null,
     };
   })();
 
@@ -232,7 +233,7 @@
           app.selectedDay = day;
           app.tapeProgress = 0;
           app.tapeDir = 0;
-          app.screen = isOpened(day) ? STATE.OPENED : STATE.TEARING;
+          app.screen = isOpened(day) ? STATE.PLAYING : STATE.TEARING;
           render();
         },
       });
@@ -386,40 +387,28 @@
     ]);
   }
 
-  function renderOpenedStage() {
+  // Unified opened/playing view. The delivery box stays as the backdrop;
+  // the album shows large & centered, then (withIntro) shrinks up to the
+  // top-left after 1s while the video starts playing behind it.
+  function renderPlayer(withIntro) {
     const idx = app.selectedDay - 1;
-    const openedBox = el(
-      "div",
-      {
-        class: "opened-box",
-        style: { background: BOX_COLORS[idx] },
-        on: {
-          click: () => {
-            app.screen = STATE.PLAYING;
-            render();
-          },
-        },
-      },
-      [
-        el("div", { class: "lid" }),
-        el("div", { class: "album-placeholder", text: "앨범 이미지" }),
-        el("div", { class: "day-label", text: "Day " + app.selectedDay }),
-      ]
-    );
-    return el("div", { class: "stage" }, [
-      el("h2", { text: "박스가 열렸습니다" }),
-      el("div", { class: "opened-wrap" }, [
-        openedBox,
-        el("div", { class: "hint", text: "박스를 클릭해서 재생하세요." }),
-      ]),
-    ]);
-  }
-
-  function renderPlayingStage() {
     const song = songByDay(app.selectedDay) || {};
     const hasVideo = !!song.videoId;
 
-    const meta = el("div", { class: "song-meta" });
+    const stagebox = el("div", {
+      class: "stagebox",
+      style: { background: BOX_COLORS[idx] },
+    });
+    stagebox.appendChild(el("div", { class: "lid" }));
+
+    // Video sits inside the box, behind the album; the box frames it.
+    const videoFrame = el("div", { class: "video-frame" });
+    stagebox.appendChild(videoFrame);
+
+    const album = el("div", { class: "album", text: "앨범 이미지" });
+    stagebox.appendChild(album);
+
+    const meta = el("div", { class: "meta" });
     if (song.title || song.artist) {
       if (song.title) meta.appendChild(el("div", { class: "title", text: song.title }));
       if (song.artist) meta.appendChild(el("div", { class: "artist", text: song.artist }));
@@ -431,51 +420,69 @@
         })
       );
     }
+    stagebox.appendChild(meta);
 
-    const header = el("div", { class: "player-header" }, [
-      el("div", { class: "album-small", text: "앨범" }),
-      meta,
-    ]);
-
-    const playerBox = el("div", { class: "player-box" }, [
-      el("div", { class: "lid" }),
-    ]);
-
-    if (hasVideo) {
-      const iframe = el("iframe", {
-        attrs: {
-          src:
-            "https://www.youtube.com/embed/" +
-            encodeURIComponent(song.videoId) +
-            "?autoplay=1&rel=0",
-          title: "YouTube video player",
-          frameborder: "0",
-          allow:
-            "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
-          allowfullscreen: "true",
-        },
-      });
-      playerBox.appendChild(iframe);
-    } else {
-      playerBox.appendChild(
-        el("div", {
-          class: "no-video",
-          text: "videoId 미입력 — data.js에서 채워주세요.",
-        })
-      );
+    function startVideo() {
+      if (hasVideo) {
+        videoFrame.appendChild(
+          el("iframe", {
+            attrs: {
+              src:
+                "https://www.youtube.com/embed/" +
+                encodeURIComponent(song.videoId) +
+                "?autoplay=1&rel=0",
+              title: "YouTube video player",
+              frameborder: "0",
+              allow:
+                "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture",
+              allowfullscreen: "true",
+            },
+          })
+        );
+      } else {
+        videoFrame.appendChild(
+          el("div", {
+            class: "no-video",
+            text: "videoId 미입력 — data.js에서 채워주세요.",
+          })
+        );
+      }
     }
 
-    return el("div", { class: "stage" }, [
-      el("div", { class: "player-wrap" }, [header, playerBox]),
-    ]);
+    if (withIntro) {
+      // Start with the big centered album; after 1s animate to the corner
+      // and reveal the video.
+      app.albumTimer = setTimeout(function () {
+        app.albumTimer = null;
+        stagebox.classList.add("playing");
+        startVideo();
+      }, 1000);
+    } else {
+      stagebox.classList.add("playing");
+      startVideo();
+    }
+
+    return el("div", { class: "stage" }, [stagebox]);
+  }
+
+  function renderOpenedStage() {
+    return renderPlayer(true);
+  }
+
+  function renderPlayingStage() {
+    return renderPlayer(false);
   }
 
   // ---------- root render ----------
   function render() {
-    // Cancel any pending auto-advance timer from a previous screen.
+    // Cancel any pending timers from a previous screen.
     if (app.arrivedTimer) {
       clearTimeout(app.arrivedTimer);
       app.arrivedTimer = null;
+    }
+    if (app.albumTimer) {
+      clearTimeout(app.albumTimer);
+      app.albumTimer = null;
     }
     root.innerHTML = "";
     let node;

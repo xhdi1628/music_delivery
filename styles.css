@@ -231,90 +231,85 @@ html, body {
   width: 0%;
 }
 
-/* ---------- Opened box + album (screen 5) ---------- */
-.opened-wrap {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 16px;
-}
-.opened-box {
+/* ---------- Player: opened box + album + video (screens 5-6) ---------- */
+/* The delivery box is the backdrop (its color / a box image later). The
+   album shows large & centered, then shrinks up to the corner while the
+   video plays inside the box. */
+.stagebox {
   position: relative;
-  width: 380px; height: 380px;
+  width: min(680px, 92vw);
   border: 2px solid #555;
-  border-radius: 4px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
+  border-radius: 6px;
+  overflow: hidden;
+  /* background color set inline per box; ready for a box image later */
 }
-.opened-box .lid {
+.stagebox .lid {
   position: absolute; top: 0; left: 0; right: 0;
-  height: 15%;
+  height: 42px;
   background: rgba(0,0,0,0.2);
   border-bottom: 2px solid #555;
-}
-.album-placeholder {
-  width: 200px; height: 200px;
-  background: #888;
-  border: 2px solid #333;
-  display: flex; align-items: center; justify-content: center;
-  color: #eee;
-  font-size: 13px;
-}
-
-/* ---------- Playing (screen 6) ---------- */
-.player-wrap {
-  width: 100%; max-width: 720px;
-  display: flex; flex-direction: column;
-  gap: 16px;
-}
-.player-header {
-  display: flex; align-items: center; gap: 16px;
-}
-.album-small {
-  width: 80px; height: 80px;
-  background: #888;
-  border: 2px solid #333;
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  color: #eee;
-  font-size: 11px;
-}
-.song-meta .title {
-  font-size: 20px; font-weight: 700;
-}
-.song-meta .artist {
-  font-size: 14px; color: #666;
-  margin-top: 4px;
-}
-.song-meta .empty {
-  font-size: 13px; color: #999;
-  font-style: italic;
-}
-
-.player-box {
-  position: relative;
-  width: 100%;
-  border: 2px solid #555;
-  border-radius: 4px;
-  aspect-ratio: 16 / 9;
-  background: #000;
-  overflow: hidden;
-}
-.player-box .lid {
-  position: absolute; top: 0; left: 0; right: 0;
-  height: 10%;
-  background: rgba(0,0,0,0.4);
-  border-bottom: 2px solid #555;
-  z-index: 2;
+  z-index: 3;
   pointer-events: none;
 }
-.player-box iframe,
-.player-box .no-video {
-  position: absolute;
-  top: 10%; left: 0; right: 0; bottom: 0;
-  width: 100%;
-  height: 90%;
+
+/* Video sits inside the box, framed by the box color around it. */
+.stagebox .video-frame {
+  position: relative;
+  margin: 120px 16px 16px;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 2px solid #333;
+  border-radius: 4px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.15s;
+}
+.stagebox.playing .video-frame { opacity: 1; }
+.stagebox .video-frame iframe,
+.stagebox .video-frame .no-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   border: 0;
 }
-.player-box .no-video {
+.stagebox .video-frame .no-video {
   display: flex; align-items: center; justify-content: center;
   color: #ccc; font-size: 14px; background: #222;
 }
+
+/* Album: intro = large, centered; playing = small, top-left corner. */
+.stagebox .album {
+  position: absolute;
+  z-index: 4;
+  width: 300px; height: 300px;
+  left: 50%; top: 46%;
+  transform: translate(-50%, -50%);
+  background: #888;
+  border: 2px solid #333;
+  display: flex; align-items: center; justify-content: center;
+  color: #eee; font-size: 13px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              left 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              top 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              font-size 0.6s ease;
+}
+.stagebox.playing .album {
+  width: 68px; height: 68px;
+  left: 16px; top: 44px;
+  transform: translate(0, 0);
+  font-size: 10px;
+}
+
+/* Title / artist, fade in beside the shrunken album. */
+.stagebox .meta {
+  position: absolute;
+  z-index: 4;
+  left: 96px; top: 50px; right: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.4s;
+}
+.stagebox.playing .meta { opacity: 1; }
+.stagebox .meta .title { font-size: 18px; font-weight: 700; color: #222; }
+.stagebox .meta .artist { font-size: 13px; color: #444; margin-top: 4px; }
+.stagebox .meta .empty { font-size: 12px; color: #555; font-style: italic; }
