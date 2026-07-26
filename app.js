@@ -82,7 +82,7 @@
   const root = document.getElementById("app");
   const resetBtn = document.getElementById("reset-btn");
 
-  resetBtn.addEventListener("click", () => {
+  function doReset() {
     app.openedBoxes = [];
     app.selectedDay = 1;
     app.tapeProgress = 0;
@@ -90,7 +90,9 @@
     app.screen = STATE.LANDING;
     saveStorage();
     render();
-  });
+  }
+
+  resetBtn.addEventListener("click", doReset);
 
   // ---------- helpers ----------
   function monthLabel() {
@@ -516,7 +518,28 @@
       startVideo();
     }
 
-    return el("div", { class: "stage" }, [player]);
+    // Pre = previous (upper) box, Next = next (lower) box, Reset = restart.
+    const preBtn = el("button", {
+      class: "p3-nav p3-pre",
+      text: "Pre",
+      on: { click: () => { if (app.selectedDay > 1) goToBox(app.selectedDay - 1); } },
+    });
+    if (app.selectedDay <= 1) preBtn.disabled = true;
+
+    const nextBtn = el("button", {
+      class: "p3-nav p3-next",
+      text: "Next",
+      on: { click: () => { if (app.selectedDay < 7) goToBox(app.selectedDay + 1); } },
+    });
+    if (app.selectedDay >= 7) nextBtn.disabled = true;
+
+    const resetNav = el("button", {
+      class: "p3-nav p3-reset",
+      text: "Reset",
+      on: { click: doReset },
+    });
+
+    return el("div", { class: "stage" }, [player, preBtn, nextBtn, resetNav]);
   }
 
   function renderOpenedStage() {
@@ -563,6 +586,11 @@
         node = renderLanding();
     }
     root.appendChild(node);
+
+    // On the player screens the reset button moves into the player nav
+    // (top-right), so hide the global bottom reset there.
+    const inPlayer = app.screen === STATE.OPENED || app.screen === STATE.PLAYING;
+    resetBtn.style.display = inPlayer ? "none" : "";
   }
 
   render();

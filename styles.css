@@ -247,6 +247,24 @@ html, body {
   position: relative;
 }
 
+/* Player nav buttons: Pre (top center), Next (bottom center), Reset (top right). */
+.p3-nav {
+  position: fixed;
+  z-index: 200;
+  padding: 8px 20px;
+  border: 1px solid #999;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.p3-nav:hover { background: #f0f0f0; }
+.p3-nav:disabled { opacity: 0.4; cursor: default; }
+.p3-pre { top: 16px; left: 50%; transform: translateX(-50%); }
+.p3-next { bottom: 16px; left: 50%; transform: translateX(-50%); }
+.p3-reset { top: 16px; right: 24px; }
+
 /* The box interior (its size is set inline per selected box). */
 .box3 {
   position: relative;
