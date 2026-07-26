@@ -80,7 +80,6 @@
   };
 
   const root = document.getElementById("app");
-  const resetBtn = document.getElementById("reset-btn");
 
   function doReset() {
     app.openedBoxes = [];
@@ -91,8 +90,6 @@
     saveStorage();
     render();
   }
-
-  resetBtn.addEventListener("click", doReset);
 
   // ---------- helpers ----------
   function monthLabel() {
@@ -586,11 +583,6 @@
         node = renderLanding();
     }
     root.appendChild(node);
-
-    // On the player screens the reset button moves into the player nav
-    // (top-right), so hide the global bottom reset there.
-    const inPlayer = app.screen === STATE.OPENED || app.screen === STATE.PLAYING;
-    resetBtn.style.display = inPlayer ? "none" : "";
   }
 
   render();
