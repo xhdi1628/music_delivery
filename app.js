@@ -454,7 +454,7 @@
     // Album: starts centered inside the box, then rises to the header slot.
     const album = el("div", {
       class: "p3-album",
-      text: "앨범 이미지",
+      text: song.image ? "" : "앨범 이미지",
       style: {
         width: albumSide + "px",
         height: albumSide + "px",
@@ -462,6 +462,12 @@
         top: Math.round((IH - albumSide) / 2) + "px",
       },
     });
+    if (song.image) {
+      // Use the album artwork as the background; falls back to gray if missing.
+      album.style.backgroundImage = 'url("' + song.image + '")';
+      album.style.backgroundSize = "cover";
+      album.style.backgroundPosition = "center";
+    }
     box.appendChild(album);
 
     player.appendChild(box);
