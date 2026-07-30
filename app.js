@@ -323,7 +323,7 @@
     // ---- interaction: a single left/right drag peels the tape in that
     // direction; progress follows drag distance and the box opens at 100%.
     // Larger value = lower sensitivity (needs more drag distance to tear).
-    const DRAG_TO_FULL_PX = 560;
+    const DRAG_TO_FULL_PX = 1000;
 
     let dragging = false;
     let dragStartX = 0;
