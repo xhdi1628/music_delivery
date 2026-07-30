@@ -14,12 +14,35 @@ html, body {
   position: relative;
 }
 
-/* ---------- Entry background (screens 1-3) ---------- */
-body.entry-bg {
-  background-image: url("public/images/bg-entry.webp");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+/* ---------- Entry background (screens 1-2) ---------- */
+body.entry-bg { background: #E8E0CF; }
+
+#app { position: relative; z-index: 1; }
+
+/* Framed interior photo, centered, behind the app content. */
+#entry-photo {
+  display: none;
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  /* <=768: 60px side margins, photo scales down; grows with the viewport up
+     to 1427px, after which only the side margins grow. */
+  width: min(calc(100vw - 120px), 1427px);
+  z-index: 0;
+}
+body.entry-bg #entry-photo { display: block; }
+#entry-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+#entry-photo .frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
 }
 
 /* ---------- Landing (screen 1) ---------- */

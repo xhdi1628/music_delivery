@@ -591,11 +591,9 @@
     }
     root.appendChild(node);
 
-    // Screens 1-3 (landing, box arrived, selection) use the entry background.
+    // Screens 1-2 (landing, box arrived) use the entry background.
     const withBg =
-      app.screen === STATE.LANDING ||
-      app.screen === STATE.BOX_ARRIVED ||
-      app.screen === STATE.SELECTION;
+      app.screen === STATE.LANDING || app.screen === STATE.BOX_ARRIVED;
     document.body.classList.toggle("entry-bg", withBg);
   }
 
