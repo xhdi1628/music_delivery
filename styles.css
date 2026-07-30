@@ -17,6 +17,14 @@ html, body {
 /* ---------- Entry background (screens 1-2) ---------- */
 body.entry-bg { background: #E8E0CF; }
 
+/* ---------- Wood background (screens 3-6) ---------- */
+body.wood-bg {
+  background-image: url("public/images/bg-wood.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 #app { position: relative; z-index: 1; }
 
 /* Framed interior photo, centered, behind the app content. */

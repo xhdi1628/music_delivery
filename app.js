@@ -595,6 +595,14 @@
     const withBg =
       app.screen === STATE.LANDING || app.screen === STATE.BOX_ARRIVED;
     document.body.classList.toggle("entry-bg", withBg);
+
+    // Screens 3-6 (selection, tearing, opened, playing) use the wood background.
+    const withWood =
+      app.screen === STATE.SELECTION ||
+      app.screen === STATE.TEARING ||
+      app.screen === STATE.OPENED ||
+      app.screen === STATE.PLAYING;
+    document.body.classList.toggle("wood-bg", withWood);
   }
 
   render();
