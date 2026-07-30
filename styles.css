@@ -26,8 +26,8 @@ body.entry-bg { background: #E8E0CF; }
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   /* <=768: 60px side margins, photo scales down; grows with the viewport up
-     to 1427px, after which only the side margins grow. */
-  width: min(calc(100vw - 120px), 1427px);
+     to 2024px, after which only the side margins grow. */
+  width: min(calc(100vw - 120px), 2024px);
   z-index: 0;
 }
 body.entry-bg #entry-photo { display: block; }
