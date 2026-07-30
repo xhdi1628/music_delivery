@@ -81,6 +81,24 @@
 
   const root = document.getElementById("app");
 
+  // ---------- browser history (back button = previous screen) ----------
+  let restoringHistory = false;
+
+  function navKey(screen, day) {
+    return screen + ":" + day;
+  }
+
+  window.addEventListener("popstate", function (e) {
+    const st = e.state || { screen: STATE.LANDING, selectedDay: 1 };
+    restoringHistory = true;
+    app.screen = st.screen;
+    app.selectedDay = st.selectedDay || 1;
+    app.tapeProgress = 0;
+    app.tapeDir = 0;
+    render();
+    restoringHistory = false;
+  });
+
   function doReset() {
     app.openedBoxes = [];
     app.selectedDay = 1;
@@ -603,6 +621,23 @@
       app.screen === STATE.OPENED ||
       app.screen === STATE.PLAYING;
     document.body.classList.toggle("wood-bg", withWood);
+
+    // Sync browser history so the back button walks the screen flow.
+    if (!restoringHistory) {
+      const snap = { screen: app.screen, selectedDay: app.selectedDay };
+      const cur = history.state;
+      if (cur == null) {
+        history.replaceState(snap, "");
+      } else if (navKey(cur.screen, cur.selectedDay) !== navKey(app.screen, app.selectedDay)) {
+        // BOX_ARRIVED is a brief auto-advancing screen — replace it rather
+        // than leaving a history entry the back button would bounce on.
+        if (cur.screen === STATE.BOX_ARRIVED) {
+          history.replaceState(snap, "");
+        } else {
+          history.pushState(snap, "");
+        }
+      }
+    }
   }
 
   render();
