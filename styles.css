@@ -286,47 +286,22 @@ body.entry-bg #entry-photo { display: block; }
 .p3-next { bottom: 16px; left: 50%; transform: translateX(-50%); }
 .p3-reset { top: 16px; right: 24px; }
 
-/* The box interior (its size is set inline per selected box). */
+/* The opened-box photo (fixed square size, one of the monthly boxes). */
 .box3 {
   position: relative;
-  /* slightly darker inside look, over the box color */
-  box-shadow: inset 0 0 0 4000px rgba(0, 0, 0, 0.12);
+  width: min(78vh, 60vw, 640px);
+  aspect-ratio: 1;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-/* Side flaps: trapezoids angled outward from the box sides. */
-.box3 .flap {
-  position: absolute;
-  top: -20px; bottom: -20px;
-  width: 92px;
-  z-index: 1;
-}
-.box3 .flap.left {
-  left: -92px;
-  clip-path: polygon(0 0, 100% 6%, 100% 94%, 0 100%);
-}
-.box3 .flap.right {
-  right: -92px;
-  clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 94%);
-}
-
-/* Top / bottom flaps seen edge-on as bars, slightly darker. */
-.box3 .bar {
-  position: absolute;
-  left: -8px; right: -8px;
-  height: 14px;
-  z-index: 2;
-  filter: brightness(0.82);
-}
-.box3 .bar.top { top: -14px; }
-.box3 .bar.bottom { bottom: -14px; }
-
-/* Video: 16:9, centered on top of the box (not filling it).
-   Size is a placeholder (70% of box width) — adjust `width` later. */
+/* Video: 16:9, centered over the box opening, revealed when playback starts. */
 .box3 .video-frame {
   position: absolute;
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  width: 70%;
+  width: 46%;
   aspect-ratio: 16 / 9;
   z-index: 3;
   background: #000;
@@ -343,14 +318,14 @@ body.entry-bg #entry-photo { display: block; }
 }
 .box3 .video-frame .no-video {
   display: flex; align-items: center; justify-content: center;
-  color: #ccc; font-size: 14px; background: #222;
+  color: #ccc; font-size: 13px; background: #222; text-align: center;
 }
 
 /* Title / artist in the header slot above the box. */
 .box3 .p3-meta {
   position: absolute;
   z-index: 5;
-  left: 84px; top: -90px; width: 260px;
+  left: 88px; top: -84px; width: 260px;
   opacity: 0;
   transition: opacity 0.3s ease 0.4s;
 }
@@ -359,12 +334,14 @@ body.entry-bg #entry-photo { display: block; }
 .box3 .p3-meta .artist { font-size: 14px; color: #444; margin-top: 6px; }
 .box3 .p3-meta .empty { font-size: 13px; color: #333; font-style: italic; }
 
-/* Album: starts centered inside the box (size/pos set inline), rises to the
-   header slot above the box. */
+/* Album: starts centered inside the box opening; rises to the header slot.
+   The box is square, so equal width/height percentages stay square. */
 .box3 .p3-album {
   position: absolute;
   z-index: 6;
-  background: #fff;
+  width: 40%; height: 40%;
+  left: 30%; top: 30%;
+  background: #fff center / cover no-repeat;
   display: flex; align-items: center; justify-content: center;
   color: #222; font-size: 13px;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
@@ -372,4 +349,9 @@ body.entry-bg #entry-photo { display: block; }
               left 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               top 0.6s cubic-bezier(0.4, 0, 0.2, 1),
               font-size 0.6s ease;
+}
+.player3.playing .box3 .p3-album {
+  width: 72px; height: 72px;
+  left: 8px; top: -92px;
+  font-size: 10px;
 }

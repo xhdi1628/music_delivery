@@ -79,6 +79,40 @@
     stack: { w: 100, h: 56 },
   };
 
+  // There are 8 opened-box images; each month we deterministically pick 7 of
+  // them (seeded by the month) and assign one to each day. The choice stays
+  // fixed for the whole month and changes when the month changes.
+  const BOX_IMAGE_COUNT = 8;
+  const MONTH_BOXES = (function () {
+    let h = 2166136261;
+    const s = String(songsData.month);
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    let seed = h >>> 0;
+    function rnd() {
+      seed = (seed + 0x6d2b79f5) >>> 0;
+      let t = seed;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    const arr = [];
+    for (let i = 1; i <= BOX_IMAGE_COUNT; i++) arr.push(i);
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      const tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr.slice(0, 7); // 7 of 8, in day order
+  })();
+
+  function boxImageForDay(day) {
+    return "public/images/box" + MONTH_BOXES[day - 1] + ".png";
+  }
+
   const root = document.getElementById("app");
 
   // ---------- browser history (back button = previous screen) ----------
@@ -423,35 +457,23 @@
     ]);
   }
 
-  // Opened-box player. The opened box stays visible the whole time and keeps
-  // the selected box's own size ratio. The album appears inside the box,
-  // centered, then (withIntro) rises up to the header while the video plays.
+  // Opened-box player. The opened box (a fixed-size photo, one of the 7 boxes
+  // picked for this month) stays visible the whole time. The album appears
+  // inside the box, centered, then (withIntro) rises up to the header while
+  // the video plays. No random sizing.
   function renderPlayer(withIntro) {
-    const idx = app.selectedDay - 1;
     const song = songByDay(app.selectedDay) || {};
     const hasVideo = !!song.videoId;
-    const boxColor = BOX_COLORS[idx];
-
-    // Box body: same per-box size as the tearing box, so tearing -> opened
-    // keeps this box's body size (flaps are added outside of this).
-    const size = focusSize(idx);
-    const IW = size.w;
-    const IH = size.h;
-    const albumSide = Math.round(Math.min(IW, IH) * 0.62);
 
     const player = el("div", { class: "player3" });
 
-    // The opened box: interior + side flaps + top/bottom bars. Always shown.
+    // The opened box photo for this day (fixed size via CSS).
     const box = el("div", {
       class: "box3",
-      style: { width: IW + "px", height: IH + "px", background: boxColor },
+      style: { backgroundImage: 'url("' + boxImageForDay(app.selectedDay) + '")' },
     });
-    box.appendChild(el("div", { class: "flap left", style: { background: boxColor } }));
-    box.appendChild(el("div", { class: "flap right", style: { background: boxColor } }));
-    box.appendChild(el("div", { class: "bar top", style: { background: boxColor } }));
-    box.appendChild(el("div", { class: "bar bottom", style: { background: boxColor } }));
 
-    // Video fills the interior, revealed when playback starts.
+    // Video sits on top of the box (16:9), revealed when playback starts.
     const videoFrame = el("div", { class: "video-frame" });
     box.appendChild(videoFrame);
 
@@ -470,19 +492,13 @@
     }
     box.appendChild(meta);
 
-    // Album: starts centered inside the box, then rises to the header slot.
+    // Album: starts centered inside the box, then rises to the header slot
+    // (positions/sizes handled by CSS via the .playing class).
     const album = el("div", {
       class: "p3-album",
       text: song.image ? "" : "앨범 이미지",
-      style: {
-        width: albumSide + "px",
-        height: albumSide + "px",
-        left: Math.round((IW - albumSide) / 2) + "px",
-        top: Math.round((IH - albumSide) / 2) + "px",
-      },
     });
     if (song.image) {
-      // Use the album artwork as the background; falls back to gray if missing.
       album.style.backgroundImage = 'url("' + song.image + '")';
       album.style.backgroundSize = "cover";
       album.style.backgroundPosition = "center";
@@ -490,13 +506,6 @@
     box.appendChild(album);
 
     player.appendChild(box);
-
-    function raiseAlbum() {
-      album.style.width = "72px";
-      album.style.height = "72px";
-      album.style.left = "6px";
-      album.style.top = "-96px";
-    }
 
     function startVideo() {
       if (hasVideo) {
@@ -531,12 +540,10 @@
       app.albumTimer = setTimeout(function () {
         app.albumTimer = null;
         player.classList.add("playing");
-        raiseAlbum();
         startVideo();
       }, 1000);
     } else {
       player.classList.add("playing");
-      raiseAlbum();
       startVideo();
     }
 
