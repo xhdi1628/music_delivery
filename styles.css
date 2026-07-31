@@ -289,7 +289,7 @@ body.entry-bg #entry-photo { display: block; }
 /* The opened-box photo (fixed square size, one of the monthly boxes). */
 .box3 {
   position: relative;
-  width: min(78vh, 60vw, 640px);
+  width: min(88vh, 70vw, 760px);
   aspect-ratio: 1;
   background-size: contain;
   background-position: center;
