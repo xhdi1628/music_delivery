@@ -33,9 +33,9 @@ body.wood-bg {
   position: fixed;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  /* <=768: 60px side margins, photo scales down; grows with the viewport up
-     to 2024px, after which only the side margins grow. */
-  width: min(calc(100vw - 120px), 2024px);
+  /* Fit within the viewport with 60px margins on all sides (photo ratio
+     ~1.79), growing up to 2024px wide; beyond that only the margins grow. */
+  width: min(calc(100vw - 120px), calc((100vh - 120px) * 1.79), 2024px);
   z-index: 0;
 }
 body.entry-bg #entry-photo { display: block; }
@@ -301,7 +301,7 @@ body.entry-bg #entry-photo { display: block; }
   position: absolute;
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  width: 46%;
+  width: 92%;
   aspect-ratio: 16 / 9;
   z-index: 3;
   background: #000;
