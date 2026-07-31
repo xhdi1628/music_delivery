@@ -467,11 +467,15 @@
 
     const player = el("div", { class: "player3" });
 
-    // The opened box photo for this day (fixed size via CSS).
-    const box = el("div", {
-      class: "box3",
-      style: { backgroundImage: 'url("' + boxImageForDay(app.selectedDay) + '")' },
-    });
+    // The opened box photo for this day (fixed size via CSS). Rendered as an
+    // <img> so a drop-shadow can follow the box silhouette.
+    const box = el("div", { class: "box3" });
+    box.appendChild(
+      el("img", {
+        class: "box3-img",
+        attrs: { src: boxImageForDay(app.selectedDay), alt: "" },
+      })
+    );
 
     // Video sits on top of the box (16:9), revealed when playback starts.
     const videoFrame = el("div", { class: "video-frame" });
