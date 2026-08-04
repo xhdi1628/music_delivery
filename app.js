@@ -630,7 +630,7 @@
       if (img) {
         const src =
           app.screen === STATE.BOX_ARRIVED
-            ? "./public/images/bg-entry2.png"
+            ? "./public/images/bg-entry2.webp"
             : "./public/images/bg-entry.webp";
         if (!img.src.endsWith(src.slice(1))) img.src = src;
       }
