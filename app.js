@@ -620,10 +620,21 @@
     }
     root.appendChild(node);
 
-    // Screens 1-2 (landing, box arrived) use the entry background.
+    // Screens 1-2 (landing, box arrived) use the entry background, each with
+    // its own photo.
     const withBg =
       app.screen === STATE.LANDING || app.screen === STATE.BOX_ARRIVED;
     document.body.classList.toggle("entry-bg", withBg);
+    if (withBg) {
+      const img = document.getElementById("entry-photo-img");
+      if (img) {
+        const src =
+          app.screen === STATE.BOX_ARRIVED
+            ? "./public/images/bg-entry2.webp"
+            : "./public/images/bg-entry.webp";
+        if (!img.src.endsWith(src.slice(1))) img.src = src;
+      }
+    }
 
     // Screens 3-6 (selection, tearing, opened, playing) use the wood background.
     const withWood =
