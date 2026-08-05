@@ -137,10 +137,18 @@ body.entry-bg #entry-photo { display: block; }
   cursor: pointer;
   user-select: none;
 }
-/* Stacked boxes sit flush; the box below casts a shadow onto the bottom of
-   the box above it. The last box in a stack has nothing below it. */
-.box:not(:last-child) {
-  box-shadow: inset 0 -14px 16px -10px rgba(0, 0, 0, 0.45);
+/* Stacked boxes sit flush; the box above casts a soft shadow onto the top of
+   this one, spanning only the width the two share (set inline). */
+.box .overlap-shadow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 5px;
+  background: linear-gradient(to bottom,
+    rgba(0, 0, 0, 0.13),
+    rgba(0, 0, 0, 0));
+  pointer-events: none;
 }
 .box.big {
   width: 380px; height: 380px;

@@ -224,9 +224,19 @@
     return e;
   }
 
+  // Per-day size of a stacked tower box, or null for non-tower sizes.
+  function boxSize(day, size) {
+    const base = TOWER_BASE[size];
+    if (!base) return null;
+    const sc = BOX_SCALES[day - 1];
+    return {
+      w: Math.round(base.w * sc.w),
+      h: Math.round(base.h * sc.h),
+    };
+  }
+
   function makeBox(day, size /* "big" | "small" */, opts) {
     opts = opts || {};
-    const idx = day - 1;
     const opened = isOpened(day);
     const box = el("div", {
       class: "box " + size + (opened ? " opened" : ""),
@@ -234,13 +244,21 @@
       on: opts.onClick ? { click: opts.onClick } : null,
     });
     // Random per-day sizing for the stacked tower boxes.
-    const base = TOWER_BASE[size];
-    if (base) {
-      const sc = BOX_SCALES[idx];
-      box.style.width = Math.round(base.w * sc.w) + "px";
-      box.style.height = Math.round(base.h * sc.h) + "px";
+    const mine = boxSize(day, size);
+    if (mine) {
+      box.style.width = mine.w + "px";
+      box.style.height = mine.h + "px";
     }
-    // Plain rectangle (no lid / no tape / no label) — an image will fill the box later.
+    // Shadow the box above casts onto this one, spanning only the width the
+    // two actually share (boxes are centre-aligned in the stack).
+    if (mine && opts.prevWidth) {
+      box.appendChild(
+        el("div", {
+          class: "overlap-shadow",
+          style: { width: Math.min(opts.prevWidth, mine.w) + "px" },
+        })
+      );
+    }
     if (opts.selected) box.classList.add("selected");
     return box;
   }
@@ -266,7 +284,11 @@
     // Auto-advances to the zoomed selection screen after 3 seconds.
     const tower = el("div", { class: "tower" });
     for (let d = 1; d <= 7; d++) {
-      tower.appendChild(makeBox(d, "tower-sm", {}));
+      tower.appendChild(
+        makeBox(d, "tower-sm", {
+          prevWidth: d > 1 ? boxSize(d - 1, "tower-sm").w : 0,
+        })
+      );
     }
     const viewport = el("div", { class: "tower-viewport" }, [tower]);
 
@@ -289,6 +311,7 @@
     for (let d = 1; d <= 7; d++) {
       const b = makeBox(d, "stack", {
         selected: d === app.selectedDay,
+        prevWidth: d > 1 ? boxSize(d - 1, "stack").w : 0,
         onClick: () => goToBox(d),
       });
       stack.appendChild(b);
@@ -309,6 +332,7 @@
     for (let d = 1; d <= 7; d++) {
       const day = d;
       const b = makeBox(day, "tower-lg", {
+        prevWidth: d > 1 ? boxSize(d - 1, "tower-lg").w : 0,
         onClick: () => {
           app.selectedDay = day;
           app.tapeProgress = 0;
