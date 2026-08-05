@@ -113,6 +113,33 @@
     return "public/images/box" + MONTH_BOXES[day - 1] + ".png";
   }
 
+  // Cardboard texture filling the closed boxes. Each day gets its own texture,
+  // picked at random (seeded by the month) and kept for the whole month.
+  const TEXTURE_COUNT = 3;
+  const MONTH_TEXTURES = (function () {
+    let h = 2166136261;
+    const s = "texture:" + songsData.month;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    let seed = h >>> 0;
+    function rnd() {
+      seed = (seed + 0x6d2b79f5) >>> 0;
+      let t = seed;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    const arr = [];
+    for (let i = 0; i < 7; i++) arr.push(Math.floor(rnd() * TEXTURE_COUNT) + 1);
+    return arr; // one texture per day, index 0 = day 1
+  })();
+
+  function boxTextureForDay(day) {
+    return 'url("public/images/cardboard' + MONTH_TEXTURES[day - 1] + '.webp")';
+  }
+
   const root = document.getElementById("app");
 
   // ---------- browser history (back button = previous screen) ----------
@@ -203,7 +230,7 @@
     const opened = isOpened(day);
     const box = el("div", {
       class: "box " + size + (opened ? " opened" : ""),
-      style: { background: BOX_COLORS[idx] },
+      style: { backgroundImage: boxTextureForDay(day) },
       on: opts.onClick ? { click: opts.onClick } : null,
     });
     // Random per-day sizing for the stacked tower boxes.
@@ -374,7 +401,7 @@
     const tearingBox = el("div", {
       class: "tearing-box",
       style: {
-        background: BOX_COLORS[idx],
+        backgroundImage: boxTextureForDay(app.selectedDay),
         width: size.w,
         height: size.h,
       },

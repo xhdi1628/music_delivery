@@ -121,18 +121,19 @@ body.entry-bg #entry-photo { display: block; }
   /* padding so first/last box can reach the vertical center */
   padding: 40vh 0;
 }
-/* Tower boxes (arrival overview + selection): no gap, no border. */
-.tower-viewport .box { border: none; }
 
 /* Tower box sizes */
 .box.tower-sm { width: 150px; height: 84px; flex-shrink: 0; }
 .box.tower-lg { width: 360px; height: 200px; flex-shrink: 0; }
 .box.tower-lg .day-label { font-size: 18px; }
 
-/* Generic "box" placeholder */
+/* Generic box: filled with this day's cardboard texture (set inline), no border */
 .box {
   position: relative;
-  border: 2px solid #555;
+  border: none;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   cursor: pointer;
   user-select: none;
 }
@@ -237,7 +238,10 @@ body.entry-bg #entry-photo { display: block; }
 .tearing-box {
   position: relative;
   width: 380px; height: 380px;
-  border: 2px solid #555;
+  border: none;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
   user-select: none;
 }

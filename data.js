@@ -14,14 +14,4 @@ const songsData = {
   ],
 };
 
-// Per-box appearance. Index 0 = day 1.
-const BOX_COLORS = [
-  "#E0E0E0",
-  "#D0D0D0",
-  "#C0C0C0",
-  "#B8B8B8",
-  "#A8A8A8",
-  "#989898",
-  "#888888",
-];
 
