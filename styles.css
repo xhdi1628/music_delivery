@@ -1,5 +1,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Square stage the opened-box image is drawn in. The closed box on the
+   tearing screen is sized from this too, so both match exactly. */
+:root { --box-stage: min(88vh, 70vw, 760px); }
+
 html, body {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans KR", sans-serif;
@@ -308,7 +312,7 @@ body.entry-bg #entry-photo { display: block; }
 /* The opened-box photo (fixed square size, one of the monthly boxes). */
 .box3 {
   position: relative;
-  width: min(88vh, 70vw, 760px);
+  width: var(--box-stage);
   aspect-ratio: 1;
 }
 /* Box image rendered as <img> so the shadow follows the box silhouette. */

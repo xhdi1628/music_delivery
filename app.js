@@ -343,26 +343,40 @@
     return screen;
   }
 
-  // Base size of the focused box; scaled per box so each keeps its own size.
-  const FOCUS_BASE = { w: 756, h: 423 };
+  // Body (excluding flaps) of each opened-box image, as a fraction of that
+  // image's own width/height — measured from the box PNGs. Index 0 = box1.
+  const BOX_IMAGE_ASPECT = 2382 / 2439; // w / h of the box images
+  const BOX_BODY = [
+    { w: 0.5840, h: 0.4043 }, // box1
+    { w: 0.5869, h: 0.4227 }, // box2
+    { w: 0.5172, h: 0.5195 }, // box3
+    { w: 0.5642, h: 0.3469 }, // box4
+    { w: 0.4992, h: 0.4543 }, // box5
+    { w: 0.6650, h: 0.3694 }, // box6
+    { w: 0.4937, h: 0.5892 }, // box7
+    { w: 0.6280, h: 0.4317 }, // box8
+  ];
 
-  function focusSize(idx) {
-    const sc = BOX_SCALES[idx];
+  // Size of the closed box so it matches the body of the day's opened-box
+  // image. The player stage (--box-stage) is a square holding the image with
+  // object-fit: contain, so the image renders at (stage * aspect) x stage.
+  function bodySize(day) {
+    const b = BOX_BODY[MONTH_BOXES[day - 1] - 1];
     return {
-      w: Math.round(FOCUS_BASE.w * sc.w),
-      h: Math.round(FOCUS_BASE.h * sc.h),
+      w: "calc(var(--box-stage) * " + (b.w * BOX_IMAGE_ASPECT).toFixed(5) + ")",
+      h: "calc(var(--box-stage) * " + b.h.toFixed(5) + ")",
     };
   }
 
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
-    const size = focusSize(idx);
+    const size = bodySize(app.selectedDay);
     const tearingBox = el("div", {
       class: "tearing-box",
       style: {
         background: BOX_COLORS[idx],
-        width: size.w + "px",
-        height: size.h + "px",
+        width: size.w,
+        height: size.h,
       },
     });
 
