@@ -25,12 +25,3 @@ const BOX_COLORS = [
   "#888888",
 ];
 
-const TAPE_COLORS = [
-  "#E74C3C", // red
-  "#E67E22", // orange
-  "#F1C40F", // yellow
-  "#27AE60", // green
-  "#3498DB", // blue
-  "#34495E", // indigo
-  "#9B59B6", // purple
-];

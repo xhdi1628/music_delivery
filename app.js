@@ -366,10 +366,9 @@
       },
     });
 
-    const tape = el("div", {
-      class: "tearing-tape",
-      style: { background: TAPE_COLORS[idx] },
-    });
+    // Realistic translucent yellow packing-tape look (fiber texture + gloss
+    // sheen), same for every box — see .tearing-tape in styles.css.
+    const tape = el("div", { class: "tearing-tape" });
     tearingBox.appendChild(tape);
 
     // ---- interaction: a single left/right drag peels the tape in that
