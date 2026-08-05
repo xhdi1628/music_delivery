@@ -115,7 +115,7 @@
 
   // Cardboard texture filling the closed boxes. Each day gets its own texture,
   // picked at random (seeded by the month) and kept for the whole month.
-  const TEXTURE_COUNT = 3;
+  const TEXTURE_COUNT = 5;
   const MONTH_TEXTURES = (function () {
     let h = 2166136261;
     const s = "texture:" + songsData.month;
