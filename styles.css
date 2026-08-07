@@ -2,7 +2,7 @@
 
 /* Square stage the opened-box image is drawn in. The closed box on the
    tearing screen is sized from this too, so both match exactly. */
-:root { --box-stage: min(88vh, 70vw, 760px); }
+:root { --box-stage: min(78vh, 70vw, 760px); }
 
 html, body {
   height: 100%;
@@ -198,11 +198,15 @@ body.entry-bg #entry-photo { display: block; }
 
 /* ---------- Shell layout (screens 3-6) ---------- */
 .shell {
+  position: relative;
   display: flex;
   width: 100%; height: 100%;
 }
 
+/* Taken out of flow so the stage stays centred on the screen itself. */
 .stack-panel {
+  position: absolute;
+  left: 0; top: 0;
   width: 150px;
   height: 100%;
   padding: 12px 0;
@@ -212,18 +216,21 @@ body.entry-bg #entry-photo { display: block; }
   align-items: center;
   justify-content: center;
   gap: 0;
+  z-index: 2;
+}
+/* Hide the side stack on narrow screens. */
+@media (max-width: 767px) {
+  .stack-panel { display: none; }
 }
 
 /* Left stack boxes: same per-box ratio as the selection tower, no gaps,
-   no border by default; dimmed unless selected. */
+   no border by default. */
 .box.stack {
   flex-shrink: 0;
   border: none;
   border-radius: 0;
-  opacity: 0.5;
 }
 .stack-panel .box.stack.selected {
-  opacity: 1;
   outline: 2px solid #333;
   outline-offset: -2px;
 }
@@ -309,6 +316,9 @@ body.entry-bg #entry-photo { display: block; }
    the header slot above the box while the video plays. */
 .player3 {
   position: relative;
+  /* room for the album + title that sit above the box, so the whole group
+     (header + box) is what gets centred vertically */
+  padding-top: 108px;
 }
 
 /* Player nav buttons: Pre (top center), Next (bottom center), Reset (top right).
