@@ -122,10 +122,8 @@ body.entry-bg #entry-photo { display: block; }
   padding: 40vh 0;
 }
 
-/* Tower box sizes */
-.box.tower-sm { width: 150px; height: 84px; flex-shrink: 0; }
-.box.tower-lg { width: 360px; height: 200px; flex-shrink: 0; }
-.box.tower-lg .day-label { font-size: 18px; }
+/* Tower box sizes — height is fixed, width follows each box's own ratio */
+.box.tower-sm { height: 84px; flex-shrink: 0; }
 
 /* Generic box: filled with this day's cardboard texture (set inline), no border */
 .box {
@@ -137,64 +135,64 @@ body.entry-bg #entry-photo { display: block; }
   cursor: pointer;
   user-select: none;
 }
-/* Stacked boxes sit flush; the box above casts a soft shadow onto the top of
-   this one, spanning only the width the two share (set inline). */
-.box .overlap-shadow {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 5px;
-  background: linear-gradient(to bottom,
-    rgba(0, 0, 0, 0.13),
-    rgba(0, 0, 0, 0));
-  pointer-events: none;
-}
-.box.big {
-  width: 380px; height: 380px;
-}
-.box.small {
-  width: 100px; height: 100px;
-  flex-shrink: 0;
-}
-
-.box .lid {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 25%;
-  border-bottom: 2px solid #555;
-  background: rgba(0,0,0,0.05);
-}
-.box.opened .lid {
-  height: 15%;
-  background: rgba(0,0,0,0.2);
-}
-
-/* Tape on a closed box (crosses the lid seam) */
+/* Tape sealing a closed box, seen from above. Colour is set inline per day. */
 .box .tape {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 12%;
-  width: 30%;
-  height: 26%;
-  border: 1px solid rgba(0,0,0,0.3);
-  opacity: 1;
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 17%;
   pointer-events: none;
 }
-.box.opened .tape { display: none; }
 
-.box .day-label {
-  position: absolute;
-  bottom: 8px; right: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #333;
-  background: rgba(255,255,255,0.6);
-  padding: 2px 6px;
-  border-radius: 3px;
+/* Shared translucent packing-tape look; base colour comes from inline style. */
+.tape-look {
+  opacity: 0.7;
+  background-image:
+    /* diagonal gloss streak */
+    linear-gradient(115deg,
+      rgba(255,255,255,0) 30%,
+      rgba(255,255,255,0.35) 46%,
+      rgba(255,255,255,0.05) 52%,
+      rgba(255,255,255,0) 65%),
+    /* woven fiber threads running the length of the tape */
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,0.22) 0px,
+      rgba(255,255,255,0.22) 1px,
+      rgba(255,255,255,0) 1px,
+      rgba(255,255,255,0) 6px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35),
+              inset 0 -1px 0 rgba(0,0,0,0.2);
 }
-.box.big .day-label { font-size: 20px; bottom: 12px; right: 14px; }
+
+/* ---------- Selection grid (screen 3): 3 boxes on top, 4 below ---------- */
+.grid-viewport {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+.box-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding: 20px;
+}
+.grid-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+.box.grid {
+  /* height fixed; width comes from each box's own body ratio (set inline) */
+  height: clamp(90px, 13vw, 190px);
+  flex-shrink: 0;
+  /* same drop shadow the box has on the player screens */
+  box-shadow: 0 14px 20px rgba(0, 0, 0, 0.3);
+}
+.box.opened .tape { display: none; }
 
 /* ---------- Shell layout (screens 3-6) ---------- */
 .shell {
@@ -226,6 +224,7 @@ body.entry-bg #entry-photo { display: block; }
 /* Left stack boxes: same per-box ratio as the selection tower, no gaps,
    no border by default. */
 .box.stack {
+  height: 56px;
   flex-shrink: 0;
   border: none;
   border-radius: 0;
@@ -267,34 +266,15 @@ body.entry-bg #entry-photo { display: block; }
   overflow: hidden;
   user-select: none;
 }
-/* Realistic translucent yellow packing-tape look: a warm-yellow tint (the
-   box shows through slightly), thin woven fiber threads, and a diagonal
-   glossy sheen, layered as background gradients — no external image. */
+/* Tape on the tearing screen: same look as the boxes, this day's colour,
+   at a fixed thickness. Draggable. */
 .tearing-tape {
   position: absolute;
   top: 50%; transform: translateY(-50%);
   left: 0; right: 0;
   height: 48px; /* fixed thickness so it stays uniform across varied boxes */
-  border-top: 1px solid rgba(120, 90, 10, 0.45);
-  border-bottom: 1px solid rgba(120, 90, 10, 0.45);
   cursor: grab;
   touch-action: none;
-  background-color: rgba(255, 205, 40, 0.5);
-  background-image:
-    /* diagonal gloss streak */
-    linear-gradient(115deg,
-      rgba(255,255,255,0) 30%,
-      rgba(255,255,255,0.35) 46%,
-      rgba(255,255,255,0.05) 52%,
-      rgba(255,255,255,0) 65%),
-    /* woven fiber threads running the length of the tape */
-    repeating-linear-gradient(90deg,
-      rgba(255,255,255,0.22) 0px,
-      rgba(255,255,255,0.22) 1px,
-      rgba(255,255,255,0) 1px,
-      rgba(255,255,255,0) 6px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35),
-              inset 0 -1px 0 rgba(120,90,10,0.25);
 }
 .tearing-tape.dragging { cursor: grabbing; }
 

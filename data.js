@@ -14,4 +14,14 @@ const songsData = {
   ],
 };
 
+// Tape colour sealing each closed box. Index 0 = day 1.
+const TAPE_COLORS = [
+  "#E24B3C", // red
+  "#EE8B2A", // orange
+  "#F2C230", // yellow
+  "#3FA858", // green
+  "#3E8FD0", // blue
+  "#3B4E8C", // indigo
+  "#8E5BB5", // purple
+];
 

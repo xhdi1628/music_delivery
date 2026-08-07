@@ -58,27 +58,6 @@
     };
   })();
 
-  // Per-day random size factors, fixed for this session so boxes don't
-  // resize on every re-render. Index 0 = day 1.
-  const BOX_SCALES = (function () {
-    const arr = [];
-    for (let i = 0; i < 7; i++) {
-      arr.push({
-        w: 0.7 + Math.random() * 0.55, // 0.70 - 1.25
-        h: 0.55 + Math.random() * 0.95, // 0.55 - 1.50 (more vertical variety)
-      });
-    }
-    return arr;
-  })();
-
-  // Base dimensions (px) for the tower box sizes, before random scaling.
-  const TOWER_BASE = {
-    "tower-sm": { w: 150, h: 64 },
-    "tower-lg": { w: 340, h: 190 },
-    // Left side stack: same per-box ratio as tower-lg, scaled down.
-    stack: { w: 100, h: 56 },
-  };
-
   // There are 8 opened-box images; each month we deterministically pick 7 of
   // them (seeded by the month) and assign one to each day. The choice stays
   // fixed for the whole month and changes when the month changes.
@@ -224,17 +203,6 @@
     return e;
   }
 
-  // Per-day size of a stacked tower box, or null for non-tower sizes.
-  function boxSize(day, size) {
-    const base = TOWER_BASE[size];
-    if (!base) return null;
-    const sc = BOX_SCALES[day - 1];
-    return {
-      w: Math.round(base.w * sc.w),
-      h: Math.round(base.h * sc.h),
-    };
-  }
-
   function makeBox(day, size /* "big" | "small" */, opts) {
     opts = opts || {};
     const opened = isOpened(day);
@@ -243,19 +211,15 @@
       style: { backgroundImage: boxTextureForDay(day) },
       on: opts.onClick ? { click: opts.onClick } : null,
     });
-    // Random per-day sizing for the stacked tower boxes.
-    const mine = boxSize(day, size);
-    if (mine) {
-      box.style.width = mine.w + "px";
-      box.style.height = mine.h + "px";
-    }
-    // Shadow the box above casts onto this one, spanning only the width the
-    // two actually share (boxes are centre-aligned in the stack).
-    if (mine && opts.prevWidth) {
+    // Shape each box like the body of its opened-box image, so every box has
+    // its own proportions. Height comes from CSS per screen; width follows.
+    box.style.aspectRatio = String(bodyAspect(day));
+    // Closed boxes are still taped shut; each day has its own tape colour.
+    if (!opened) {
       box.appendChild(
         el("div", {
-          class: "overlap-shadow",
-          style: { width: Math.min(opts.prevWidth, mine.w) + "px" },
+          class: "tape tape-look",
+          style: { backgroundColor: TAPE_COLORS[day - 1] },
         })
       );
     }
@@ -285,9 +249,7 @@
     const tower = el("div", { class: "tower" });
     for (let d = 1; d <= 7; d++) {
       tower.appendChild(
-        makeBox(d, "tower-sm", {
-          prevWidth: d > 1 ? boxSize(d - 1, "tower-sm").w : 0,
-        })
+        makeBox(d, "tower-sm", {})
       );
     }
     const viewport = el("div", { class: "tower-viewport" }, [tower]);
@@ -311,7 +273,6 @@
     for (let d = 1; d <= 7; d++) {
       const b = makeBox(d, "stack", {
         selected: d === app.selectedDay,
-        prevWidth: d > 1 ? boxSize(d - 1, "stack").w : 0,
         onClick: () => goToBox(d),
       });
       stack.appendChild(b);
@@ -324,74 +285,38 @@
   }
 
   function renderSelection() {
-    // Zoomed, scrollable tower. Scroll up/down to move through boxes;
-    // the box nearest the vertical center is highlighted as selected.
+    // Grid of the 7 boxes seen from above: 3 on the top row, 4 below.
     // Click a box to open it.
-    const tower = el("div", { class: "tower" });
-    const boxEls = [];
-    for (let d = 1; d <= 7; d++) {
-      const day = d;
-      const b = makeBox(day, "tower-lg", {
-        prevWidth: d > 1 ? boxSize(d - 1, "tower-lg").w : 0,
-        onClick: () => {
-          app.selectedDay = day;
-          app.tapeProgress = 0;
-          app.tapeDir = 0;
-          app.screen = isOpened(day) ? STATE.PLAYING : STATE.TEARING;
-          render();
-        },
+    function makeRow(days) {
+      const row = el("div", { class: "grid-row" });
+      days.forEach(function (day) {
+        row.appendChild(
+          makeBox(day, "grid", {
+            onClick: () => {
+              app.selectedDay = day;
+              app.tapeProgress = 0;
+              app.tapeDir = 0;
+              app.screen = isOpened(day) ? STATE.PLAYING : STATE.TEARING;
+              render();
+            },
+          })
+        );
       });
-      boxEls.push({ day: day, elm: b });
-      tower.appendChild(b);
+      return row;
     }
 
-    const viewport = el("div", { class: "tower-viewport scrollable" }, [tower]);
-
-    function refreshSelected() {
-      const vpRect = viewport.getBoundingClientRect();
-      const centerY = vpRect.top + vpRect.height / 2;
-      let best = null;
-      let bestDist = Infinity;
-      boxEls.forEach(function (item) {
-        const r = item.elm.getBoundingClientRect();
-        const c = r.top + r.height / 2;
-        const dist = Math.abs(c - centerY);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = item;
-        }
-      });
-      boxEls.forEach(function (item) {
-        item.elm.classList.remove("selected");
-      });
-      if (best) {
-        best.elm.classList.add("selected");
-        app.selectedDay = best.day;
-      }
-    }
-
-    viewport.addEventListener("scroll", refreshSelected);
-
-    const screen = el("div", { class: "tower-screen" }, [
-      el("div", {
-        class: "top-hint",
-        text: monthLabel() + " 박스를 위아래로 스크롤해서 고르고, 클릭해서 열어보세요.",
-      }),
-      viewport,
+    const grid = el("div", { class: "box-grid" }, [
+      makeRow([1, 2, 3]),
+      makeRow([4, 5, 6, 7]),
     ]);
 
-    // Center the initially-selected box and set the highlight once mounted.
-    requestAnimationFrame(function () {
-      const sel = boxEls.find(function (i) {
-        return i.day === app.selectedDay;
-      });
-      if (sel) {
-        sel.elm.scrollIntoView({ block: "center" });
-      }
-      refreshSelected();
-    });
-
-    return screen;
+    return el("div", { class: "tower-screen" }, [
+      el("div", {
+        class: "top-hint",
+        text: monthLabel() + " 박스를 골라서 열어보세요.",
+      }),
+      el("div", { class: "grid-viewport" }, [grid]),
+    ]);
   }
 
   // Body (excluding flaps) of each opened-box image, as a fraction of that
@@ -419,6 +344,13 @@
     };
   }
 
+  // Width / height ratio of that body, used to shape the closed boxes on the
+  // other screens. Changes only when the month re-picks the box images.
+  function bodyAspect(day) {
+    const b = BOX_BODY[MONTH_BOXES[day - 1] - 1];
+    return (b.w / b.h) * BOX_IMAGE_ASPECT;
+  }
+
   function renderTearingStage() {
     const idx = app.selectedDay - 1;
     const size = bodySize(app.selectedDay);
@@ -432,8 +364,11 @@
     });
 
     // Realistic translucent yellow packing-tape look (fiber texture + gloss
-    // sheen), same for every box — see .tearing-tape in styles.css.
-    const tape = el("div", { class: "tearing-tape" });
+    // sheen) in this day's tape colour — see .tape-look in styles.css.
+    const tape = el("div", {
+      class: "tearing-tape tape-look",
+      style: { backgroundColor: TAPE_COLORS[idx] },
+    });
     tearingBox.appendChild(tape);
 
     // ---- interaction: a single left/right drag peels the tape in that
